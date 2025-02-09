@@ -49,7 +49,7 @@ class MemberControllerIT {
     @Test
     @Order(1)
     void shouldReturnAllMembers() throws Exception {
-        MemberRequest memberRequest = new MemberRequest("+919812345678", "John Doe", "john.doe@example.com");
+        MemberRequest memberRequest = new MemberRequest("+919812345678", "John Doe", "john.doe@example.com", "123");
 
         mockMvc.perform(post("/members")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,7 +64,7 @@ class MemberControllerIT {
     @Test
     @Order(2)
     void shouldCreateNewMember() throws Exception {
-        MemberRequest memberRequest = new MemberRequest("+919812345678", "Jane Doe", "jane.doe@example.com");
+        MemberRequest memberRequest = new MemberRequest("+919812345678", "Jane Doe", "jane.doe@example.com", "123");
 
         mockMvc.perform(post("/members")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -94,7 +94,7 @@ class MemberControllerIT {
     @Test
     @Order(5)
     void shouldReturnBadRequestForInvalidMemberRequest() throws Exception {
-        MemberRequest invalidRequest = new MemberRequest("", "", "invalid-email");
+        MemberRequest invalidRequest = new MemberRequest("", "", "invalid-email", "123");
 
         mockMvc.perform(post("/members")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -105,7 +105,7 @@ class MemberControllerIT {
     @Test
     @Order(6)
     void shouldHandleDuplicateEmailException() throws Exception {
-        MemberRequest duplicateMember = new MemberRequest("+919876543210", "John Doe", "john.doe@example.com");
+        MemberRequest duplicateMember = new MemberRequest("+919876543210", "John Doe", "john.doe@example.com", "123");
 
         mockMvc.perform(post("/members")
                         .contentType(MediaType.APPLICATION_JSON)

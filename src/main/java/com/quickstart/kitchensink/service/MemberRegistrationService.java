@@ -28,7 +28,7 @@ public class MemberRegistrationService {
         if (Objects.isNull(memberRequest)) {
             throw new InvalidObjectException("Invalid object received while registering member");
         }
-        log.info("Registering " + memberRequest.getName());
+        log.info("Registering with password : {}" + memberRequest.getName(), memberRequest.getPassword());
         Member member = Member.of(memberRequest);
         memberRepository.save(member);
     }
@@ -51,7 +51,7 @@ public class MemberRegistrationService {
         return memberRepository.existsByEmail(email);
     }
 
-    public boolean validateCredentials(String email, String password) {
-        return memberRepository.existsByEmailAndPassword(email, password);
+    public void getMemberByEmail(String email) {
+        MemberDTO.of(Objects.requireNonNull(memberRepository.findByEmail(email).orElseThrow()));
     }
 }

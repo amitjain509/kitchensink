@@ -49,25 +49,4 @@ public class MemberController {
             return ResponseEntity.badRequest().build();
         }
     }
-
-    @PostMapping
-    @ResponseBody
-    ResponseEntity<String> addMember(@Valid @RequestBody MemberRequest memberRequest) {
-        try {
-            memberRegistrationService.register(memberRequest);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @PostMapping("/login")
-    @ResponseBody
-    ResponseEntity<String> login(@RequestBody MemberRequest memberRequest) throws AuthenticationException {
-        boolean authenticated = memberRegistrationService.validateCredentials(memberRequest.getEmail(), memberRequest.getPassword());
-        if(authenticated) {
-            return ResponseEntity.ok().build();
-        }
-        throw new AuthenticationException();
-    }
 }
