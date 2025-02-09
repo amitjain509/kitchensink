@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI}
+      uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:${MONGO_PORT}/kitchensink?authSource=admin
       auto-index-creation: true
   application:
     name: kitchensink
@@ -11,12 +11,8 @@ server:
   servlet:
     context-path: /api
 
-logging:
-  level:
-    org:
-      springframework:
-        security: DEBUG
-
+default:
+  password: demo@123
 admin:
   email: ${ADMIN_EMAIL}
   password: ${ADMIN_PASSWORD}
@@ -28,5 +24,16 @@ management:
 
 security:
   jwt:
-    secret-key: 3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b
+    secret-key: ${SECRET_KEY}
     expiration-time: 3600000
+
+
+# Log Level Configuration
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    com.kitchensink: DEBUG
+
+  # File Logging Configuration
+  file.name: logs/application.log

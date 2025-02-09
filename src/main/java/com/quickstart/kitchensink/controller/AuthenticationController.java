@@ -1,46 +1,38 @@
 package com.quickstart.kitchensink.controller;
 
-import com.quickstart.kitchensink.dto.MemberDTO;
-import com.quickstart.kitchensink.request.MemberRequest;
-import com.quickstart.kitchensink.response.LoginResponse;
-import com.quickstart.kitchensink.service.AuthenticationService;
-import com.quickstart.kitchensink.service.JwtService;
+import com.quickstart.kitchensink.application.AuthApplicationService;
+import com.quickstart.kitchensink.dto.request.AuthRequestDTO;
+import com.quickstart.kitchensink.dto.request.user.PasswordResetRequest;
+import com.quickstart.kitchensink.dto.response.AuthResponseDTO;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.security.sasl.AuthenticationException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/auth")
 @RestController
 @RequiredArgsConstructor
 public class AuthenticationController {
-    private final JwtService jwtService;
-    private final AuthenticationService authenticationService;
-
-    @PostMapping("/signup")
-    ResponseEntity<String> addMember(@Valid @RequestBody MemberRequest memberRequest) {
-        try {
-            authenticationService.signup(memberRequest);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
+    private final AuthApplicationService authApplicationService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody MemberRequest memberRequest) throws AuthenticationException {
-        MemberDTO memberDTO = authenticationService.authenticate(memberRequest);
+    public AuthResponseDTO authenticate(@Valid @RequestBody AuthRequestDTO authRequestDTO) {
+        return authApplicationService.resetPassword(authRequestDTO);
+    }
 
-        String jwtToken = jwtService.generateToken(memberRequest);
+    @PostMapping("/reset-password")
+    @PreAuthorize("hasAnyAuthority('USER_RESET_PASSWORD')")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
+        authApplicationService.resetPassword(passwordResetRequest);
+        return ResponseEntity.accepted().build();
+    }
 
-        LoginResponse loginResponse = LoginResponse.of(jwtToken, jwtService.getExpirationTime(),
-                memberRequest.getEmail(), memberDTO.getRoles());
-
-        return ResponseEntity.ok(loginResponse);
+    @PutMapping("/reset-password/{email}")
+    @PreAuthorize("hasAnyAuthority('USER_RESET_PASSWORD')")
+    public ResponseEntity<?> resetPassword(@NotBlank @PathVariable String email) {
+        authApplicationService.resetPassword(email);
+        return ResponseEntity.accepted().build();
     }
 }
