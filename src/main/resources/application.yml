@@ -1,16 +1,10 @@
 spring:
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: kitchensink
+      uri: ${SPRING_DATA_MONGODB_URI}
       auto-index-creation: true
-
-      username: admin
-      password: password
-      authentication-database: admin
   application:
-    name: kitchen-sink
+    name: kitchensink
 
 server:
   port: 8080

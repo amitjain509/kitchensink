@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: kitchensink-mongo
+    restart: always
+    hostname: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    networks:
+      - internal
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo/mongo.conf:/etc/mongo/mongo.conf
+      - mongodb_data:/data/db
+
+  kitchensink:
+    build: .
+    container_name: kitchensink-app
+    restart: always
+    depends_on:
+      - mongodb
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?authSource=admin
+      SPRING_PROFILES_ACTIVE: dev
+    volumes:
+      - ./mongo/mongo.conf:/etc/mongo/mongo.conf
+    ports:
+      - "8080:8080"
+    networks:
+      - internal
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  internal:
+    driver: bridge
