@@ -4,6 +4,7 @@ import com.quickstart.kitchensink.dto.MemberDTO;
 import com.quickstart.kitchensink.model.Member;
 import com.quickstart.kitchensink.repository.MemberRepository;
 import com.quickstart.kitchensink.request.MemberRequest;
+import com.quickstart.kitchensink.request.UpdateMemberRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class MemberRegistrationService {
         if (Objects.isNull(memberRequest)) {
             throw new InvalidObjectException("Invalid object received while registering member");
         }
-        log.info("Registering " + memberRequest.getName());
+        log.info("Registering with password : {}" + memberRequest.getName(), memberRequest.getPassword());
         Member member = Member.of(memberRequest);
         memberRepository.save(member);
     }
@@ -47,11 +48,30 @@ public class MemberRegistrationService {
         return memberOptional.map(MemberDTO::of).orElse(null);
     }
 
+    public boolean deleteMemberByEmailId(String email) throws InvalidKeyException {
+        if (!StringUtils.hasLength(email)) {
+            throw new InvalidKeyException("Invalid memberId");
+        }
+
+        long deletedCount = memberRepository.deleteByEmail(email);
+        return deletedCount > 0;
+    }
+
+    public void updateMemberDetails(String email, UpdateMemberRequest memberRequest) {
+        Member member = memberRepository.findByEmail(email).orElseThrow();
+        member.update(memberRequest);
+        memberRepository.save(member);
+    }
+
     public boolean isMemberExistByEmailId(String email) {
         return memberRepository.existsByEmail(email);
     }
 
-    public boolean validateCredentials(String email, String password) {
-        return memberRepository.existsByEmailAndPassword(email, password);
+    public void saveMember(Member member) {
+        memberRepository.save(member);
+    }
+
+    public Member getMemberByEmail(String email) {
+        return Objects.requireNonNull(memberRepository.findByEmail(email).orElseThrow());
     }
 }

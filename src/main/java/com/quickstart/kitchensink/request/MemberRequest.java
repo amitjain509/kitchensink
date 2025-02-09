@@ -5,9 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor
@@ -28,6 +26,7 @@ public class MemberRequest {
     @Size(max = 150, message = "Email must not exceed 150 characters")
     String email;
 
+    @Setter
     @NotBlank
     @Size(max = 15, message = "Password must not exceed 15 characters")
     String password;

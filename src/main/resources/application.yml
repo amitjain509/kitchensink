@@ -1,23 +1,32 @@
 spring:
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: kitchensink
+      uri: ${SPRING_DATA_MONGODB_URI}
       auto-index-creation: true
-
-      username: admin
-      password: password
-      authentication-database: admin
   application:
-    name: kitchen-sink
+    name: kitchensink
 
 server:
   port: 8080
   servlet:
     context-path: /api
 
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+admin:
+  email: ${ADMIN_EMAIL}
+  password: ${ADMIN_PASSWORD}
+
 management:
   endpoints:
     web:
       base-path: /kitchen-sink/actuator
+
+security:
+  jwt:
+    secret-key: 3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b
+    expiration-time: 3600000
