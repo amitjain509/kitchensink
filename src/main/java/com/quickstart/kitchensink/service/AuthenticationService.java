@@ -6,6 +6,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.quickstart.kitchensink.model.Member;
+
+import javax.security.sasl.AuthenticationException;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +22,7 @@ public class AuthenticationService {
         memberRegistrationService.register(input);
     }
 
-    public void authenticate(MemberRequest input) {
+    public void authenticate(MemberRequest input) throws AuthenticationException {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getEmail(),
@@ -27,6 +30,10 @@ public class AuthenticationService {
                 )
         );
 
-        memberRegistrationService.getMemberByEmail(input.getEmail());
+        Member member = memberRegistrationService.getMemberByEmail(input.getEmail());
+
+        if (!passwordEncoder.matches(input.getPassword(), member.getPassword())) {
+            throw new AuthenticationException("Invalid credentials");
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.quickstart.kitchensink.controller;
 
 import com.quickstart.kitchensink.dto.MemberDTO;
-import com.quickstart.kitchensink.request.MemberRequest;
+import com.quickstart.kitchensink.request.UpdateMemberRequest;
 import com.quickstart.kitchensink.service.MemberRegistrationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.AuthenticationException;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,6 +44,32 @@ public class MemberController {
             }
 
             return ResponseEntity.ok(member);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/delete")
+    ResponseEntity<?> deleteMember(@NotBlank @RequestParam("email") String email) {
+        try {
+            boolean isDeleted = memberRegistrationService.deleteMemberByEmailId(email);
+            if (!isDeleted) {
+                return ResponseEntity.unprocessableEntity().build();
+            }
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Not able to delete member", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/update/{email}")
+    ResponseEntity<?> updateMember(@NotBlank @PathVariable("email") String email,
+                                   @Valid @RequestBody UpdateMemberRequest memberRequest) {
+        try {
+            memberRegistrationService.updateMemberDetails(email, memberRequest);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

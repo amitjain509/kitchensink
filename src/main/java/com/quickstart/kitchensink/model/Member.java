@@ -1,6 +1,7 @@
 package com.quickstart.kitchensink.model;
 
 import com.quickstart.kitchensink.request.MemberRequest;
+import com.quickstart.kitchensink.request.UpdateMemberRequest;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
@@ -36,6 +37,11 @@ public class Member implements UserDetails {
                 .name(memberRequest.getName())
                 .password(memberRequest.getPassword())
                 .build();
+    }
+
+    public void update(UpdateMemberRequest memberRequest) {
+        this.name = memberRequest.getName();
+        this.phoneNumber = memberRequest.getPhoneNumber();
     }
 
     @Override

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.security.sasl.AuthenticationException;
+
 @RequestMapping("/auth")
 @RestController
 @RequiredArgsConstructor
@@ -30,12 +32,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody MemberRequest memberRequest) {
+    public ResponseEntity<LoginResponse> authenticate(@RequestBody MemberRequest memberRequest) throws AuthenticationException {
         authenticationService.authenticate(memberRequest);
 
         String jwtToken = jwtService.generateToken(memberRequest);
 
-        LoginResponse loginResponse = LoginResponse.of(jwtToken, jwtService.getExpirationTime());
+        LoginResponse loginResponse = LoginResponse.of(jwtToken, jwtService.getExpirationTime(), memberRequest.getEmail());
 
         return ResponseEntity.ok(loginResponse);
     }
