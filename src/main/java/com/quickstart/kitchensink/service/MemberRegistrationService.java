@@ -67,6 +67,10 @@ public class MemberRegistrationService {
         return memberRepository.existsByEmail(email);
     }
 
+    public void saveMember(Member member) {
+        memberRepository.save(member);
+    }
+
     public Member getMemberByEmail(String email) {
         return Objects.requireNonNull(memberRepository.findByEmail(email).orElseThrow());
     }

@@ -1,5 +1,6 @@
 package com.quickstart.kitchensink.service;
 
+import com.quickstart.kitchensink.dto.MemberDTO;
 import com.quickstart.kitchensink.request.MemberRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,7 +23,7 @@ public class AuthenticationService {
         memberRegistrationService.register(input);
     }
 
-    public void authenticate(MemberRequest input) throws AuthenticationException {
+    public MemberDTO authenticate(MemberRequest input) throws AuthenticationException {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getEmail(),
@@ -35,5 +36,6 @@ public class AuthenticationService {
         if (!passwordEncoder.matches(input.getPassword(), member.getPassword())) {
             throw new AuthenticationException("Invalid credentials");
         }
+        return MemberDTO.of(member);
     }
 }

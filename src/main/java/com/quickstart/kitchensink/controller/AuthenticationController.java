@@ -1,5 +1,6 @@
 package com.quickstart.kitchensink.controller;
 
+import com.quickstart.kitchensink.dto.MemberDTO;
 import com.quickstart.kitchensink.request.MemberRequest;
 import com.quickstart.kitchensink.response.LoginResponse;
 import com.quickstart.kitchensink.service.AuthenticationService;
@@ -33,11 +34,12 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody MemberRequest memberRequest) throws AuthenticationException {
-        authenticationService.authenticate(memberRequest);
+        MemberDTO memberDTO = authenticationService.authenticate(memberRequest);
 
         String jwtToken = jwtService.generateToken(memberRequest);
 
-        LoginResponse loginResponse = LoginResponse.of(jwtToken, jwtService.getExpirationTime(), memberRequest.getEmail());
+        LoginResponse loginResponse = LoginResponse.of(jwtToken, jwtService.getExpirationTime(),
+                memberRequest.getEmail(), memberDTO.getRoles());
 
         return ResponseEntity.ok(loginResponse);
     }

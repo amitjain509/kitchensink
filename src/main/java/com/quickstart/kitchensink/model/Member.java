@@ -8,7 +8,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +32,8 @@ public class Member implements UserDetails {
 
     private String password;
 
+    private List<String> roles;
+
     public static Member of(MemberRequest memberRequest) {
         return Member.builder()
                 .email(memberRequest.getEmail())
@@ -46,7 +50,10 @@ public class Member implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        if(CollectionUtils.isEmpty(roles)) {
+            return List.of();
+        }
+        return roles.stream().map(SimpleGrantedAuthority::new).toList();
     }
 
     @Override
