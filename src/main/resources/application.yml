@@ -7,14 +7,16 @@ spring:
     name: kitchensink
 
 server:
-  port: 8443
-  ssl:
-    key-store: file:/etc/ssl/kitchensink/keystore.p12
-    key-store-password: ${SSL_KEYSTORE_PASSWORD}
-    key-store-type: PKCS12
-    key-alias: kitchensink
+  port: 8080
   servlet:
     context-path: /api
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+    org.springframework.security: DEBUG
 
 admin:
   email: ${ADMIN_EMAIL}

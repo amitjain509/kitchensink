@@ -28,12 +28,24 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-      SSL_KEYSTORE_PASSWORD: ${SSL_KEYSTORE_PASSWORD}
     volumes:
       - ./mongo/mongo.conf:/etc/mongo/mongo.conf
-      -  ./config/certs/keystore.p12:/etc/ssl/kitchensink/keystore.p12:ro"
     ports:
-      - "8443:8443"
+      - "8080:8080"
+    networks:
+      - internal
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - /Users/amitjain/Projects/kitchen-sink-3/dist/kitchen-sink-3/browser:/usr/share/nginx/html:ro
+    depends_on:
+      - kitchensink
+    restart: always
     networks:
       - internal
 
