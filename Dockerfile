@@ -4,10 +4,14 @@ FROM eclipse-temurin:23-jre
 # Set working directory
 WORKDIR /app
 
-# Copy the JAR file from the target directory
+COPY config/certs/ca.crt /etc/ssl/
+
+RUN keytool -import -trustcacerts -keystore /opt/java/openjdk/lib/security/cacerts -storepass "${SSL_KEYSTORE_PASSWORD}" -noprompt -alias mongoDBRootCA -file /etc/ssl/ca.crt
+
 COPY build/libs/kitchensink-*.jar app.jar
 
-# Expose port 8080
+COPY config/certs/ /etc/
+
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

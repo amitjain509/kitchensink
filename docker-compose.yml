@@ -16,6 +16,8 @@ services:
     volumes:
       - ./mongo/mongo.conf:/etc/mongo/mongo.conf
       - mongodb_data:/data/db
+      - ./mongo/certs2:/etc/ssl
+    command: ["mongod", "--config", "/etc/mongo/mongo.conf"]
 
   kitchensink:
     build: .
@@ -24,18 +26,18 @@ services:
     depends_on:
       - mongodb
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?authSource=admin&tls=true
       SPRING_PROFILES_ACTIVE: dev
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
-      - ./mongo/mongo.conf:/etc/mongo/mongo.conf
+      - ./config/certs:/etc/ssl
     ports:
       - "8080:8080"
     networks:
       - internal
   nginx:
-    image: nginx:latest
+    image: nginx:1.26.3
     ports:
       - "80:80"
       - "443:443"
