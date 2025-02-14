@@ -36,6 +36,17 @@ services:
       - "8080:8080"
     networks:
       - internal
+  angular-web:
+    container_name: angular-web
+    image: nginx:1.26.3
+    ports:
+      - "4200:80"
+    volumes:
+      - ./nginx/nginx-angular.conf:/etc/nginx/nginx.conf:ro
+      - /Users/amitjain/Projects/kitchen-sink-3/dist/kitchen-sink-3/browser:/usr/share/nginx/html:ro
+    restart: always
+    networks:
+      - internal
   nginx:
     image: nginx:1.26.3
     ports:
