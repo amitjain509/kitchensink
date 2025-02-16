@@ -1,5 +1,6 @@
 package com.quickstart.kitchensink.security;
 
+import com.quickstart.kitchensink.enums.UserType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -17,9 +18,9 @@ public class SecurityContextHelper {
     }
 
     // Access the userType directly
-    public static String getCurrentUserType() {
+    public static UserType getCurrentUserType() {
         CustomAuthenticationToken auth = getCurrentAuthentication();
-        return (auth != null) ? auth.getUserType() : null;
+        return (auth != null) ? UserType.valueOf(auth.getUserType()) : null;
     }
 
     // Access the permissions directly

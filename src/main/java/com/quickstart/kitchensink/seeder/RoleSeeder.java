@@ -24,7 +24,7 @@ public class RoleSeeder {
 
             Role adminRole = Role.of("ADMIN", "Administrator role", List.of(permissionMap.get("ALL")));
 
-            Role userRole = Role.of("USER", "User role", List.of(permissionMap.get("MEMBER_CREATE")));
+            Role userRole = Role.of("DEFAULT", "User role", List.of(permissionMap.get("MEMBER_CREATE")));
 
             roleRepository.saveAll(List.of(adminRole, userRole));
         }

@@ -1,13 +1,13 @@
 package com.quickstart.kitchensink.mapper;
 
-import com.quickstart.kitchensink.dto.response.RoleDTO;
 import com.quickstart.kitchensink.dto.request.role.RoleCreateRequest;
-import com.quickstart.kitchensink.model.Permission;
+import com.quickstart.kitchensink.dto.response.RoleDTO;
 import com.quickstart.kitchensink.model.Role;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class RoleMapper {
 
@@ -19,14 +19,14 @@ public class RoleMapper {
         return RoleDTO.of(role.getId(),
                 role.getName(),
                 role.getDescription(),
-                Optional.ofNullable(role.getPermissions())
-                        .orElse(Collections.emptyList())
-                        .stream()
-                        .map(Permission::getName)
-                        .collect(Collectors.toList()));
+                new ArrayList<>(Optional.ofNullable(role.getPermissions())
+                        .orElse(Collections.emptyList())));
     }
 
     public static RoleDTO fromEntityWithoutPermission(Role role) {
+        if(Objects.isNull(role)) {
+            return null;
+        }
         return RoleDTO.of(role.getId(),
                 role.getName(),
                 role.getDescription());

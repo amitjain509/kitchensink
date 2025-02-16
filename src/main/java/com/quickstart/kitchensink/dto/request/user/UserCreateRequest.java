@@ -30,10 +30,5 @@ public class UserCreateRequest {
     @Size(max = 15, message = "Phone number must not exceed 15 characters")
     private String phoneNumber;
 
-    @Setter
-    @NotBlank
-    @Size(max = 15, message = "Password must not exceed 15 characters")
-    private String password;
-
     private UserType userType;
 }

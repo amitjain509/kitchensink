@@ -1,5 +1,6 @@
 package com.quickstart.kitchensink.seeder;
 
+import com.quickstart.kitchensink.enums.UserType;
 import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.repository.RoleRepository;
@@ -34,6 +35,8 @@ public class AdminUserSeeder {
                     .password(passwordEncoder.encode(adminPassword))
                     .roles(List.of(role.get()))
                     .active(true)
+                    .userType(UserType.ADMIN)
+                    .isPasswordResetRequired(false)
                     .build();
 
             userRepository.save(adminUser);

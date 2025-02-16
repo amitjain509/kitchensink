@@ -6,7 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -35,8 +37,13 @@ public class User implements UserDetails {
 
     private boolean locked;
 
+    private boolean isPasswordResetRequired;
+
+    @Indexed
+    @Field("user_type")
     private UserType userType;
 
+    @DBRef
     private List<Role> roles;
 
     @Override
@@ -80,6 +87,7 @@ public class User implements UserDetails {
                 .password(userDTO.getPassword())
                 .active(true)
                 .locked(false)
+                .isPasswordResetRequired(true)
                 .userType(userDTO.getUserType())
                 .build();
     }

@@ -4,6 +4,9 @@ import com.quickstart.kitchensink.enums.UserType;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+import java.util.Set;
+
 @Builder
 @Getter
 public class UserDTO {
@@ -14,5 +17,8 @@ public class UserDTO {
     private String password;
     private boolean active;
     private boolean locked;
+    private boolean isPasswordResetRequired;
     private UserType userType;
+    private List<RoleDTO> roles;
+    private Set<String> permissions;
 }

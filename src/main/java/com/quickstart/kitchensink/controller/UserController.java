@@ -4,8 +4,10 @@ import com.quickstart.kitchensink.dto.PasswordDTO;
 import com.quickstart.kitchensink.dto.request.user.UserCreateRequest;
 import com.quickstart.kitchensink.dto.request.user.UserUpdateRequest;
 import com.quickstart.kitchensink.dto.response.UserDTO;
+import com.quickstart.kitchensink.enums.UserType;
 import com.quickstart.kitchensink.mapper.UserMapper;
 import com.quickstart.kitchensink.service.UserService;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,15 +35,21 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@NotBlank @PathVariable String userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.accepted().build();
+    }
+
     @GetMapping("/{email}")
     public ResponseEntity<UserDTO> getUserByEmailId(@PathVariable String email) {
         UserDTO userDTO = UserMapper.fromEntity(userService.getUserByEmail(email));
         return ResponseEntity.ok(userDTO);
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserDTO>> findAllUsers() {
-        return ResponseEntity.ok(userService.findAllUsers());
+    @GetMapping("/userType/{userType}")
+    public ResponseEntity<List<UserDTO>> findAllUsers(@PathVariable UserType userType) {
+        return ResponseEntity.ok(userService.findAllUsersByUserType(userType));
     }
 
     @PatchMapping("/{userId}/lock")

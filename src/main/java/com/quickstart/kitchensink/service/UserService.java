@@ -2,6 +2,7 @@ package com.quickstart.kitchensink.service;
 
 import com.quickstart.kitchensink.dto.PasswordDTO;
 import com.quickstart.kitchensink.dto.response.UserDTO;
+import com.quickstart.kitchensink.enums.UserType;
 import com.quickstart.kitchensink.mapper.UserMapper;
 import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
@@ -36,28 +37,34 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void deleteUser(String userId) {
+        userRepository.deleteById(userId);
+    }
+
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Email already exists"));
     }
 
-    public List<UserDTO> findAllUsers() {
-        return userRepository.findAll().stream()
+    public List<UserDTO> findAllUsersByUserType(UserType userType) {
+        return userRepository.findByUserType(userType).stream()
+                .filter(u -> u.getUserType() != UserType.ADMIN)
                 .map(UserMapper::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public void lockUser(String email) {
-        userRepository.findByEmail(email).ifPresent(user -> {
+    public void lockUser(String userId) {
+        userRepository.findById(userId).ifPresent(user -> {
             user.lockUser();
             userRepository.save(user);
         });
     }
 
     @Transactional
-    public void unlockUser(String email) {
-        userRepository.findByEmail(email).ifPresent(user -> {
+    public void unlockUser(String userId) {
+        userRepository.findById(userId).ifPresent(user -> {
             user.unlockUser();
             userRepository.save(user);
         });

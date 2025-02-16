@@ -1,5 +1,6 @@
 package com.quickstart.kitchensink.controller;
 
+import com.quickstart.kitchensink.dto.request.AuthRequestDTO;
 import com.quickstart.kitchensink.dto.response.AuthResponseDTO;
 import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.security.jwt.JwtService;
@@ -8,11 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.stream.Collectors;
 
@@ -25,13 +22,13 @@ public class AuthenticationController {
     private final JwtService jwtService;
 
     @PostMapping("/login")
-    public AuthResponseDTO authenticate(@RequestParam("email") String email, @RequestParam("password") String password) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+    public AuthResponseDTO authenticate(@RequestBody AuthRequestDTO authRequestDTO) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getEmail(), authRequestDTO.getPassword()));
 
-        User user = userService.getUserByEmail(email);
+        User user = userService.getUserByEmail(authRequestDTO.getEmail());
         String token = jwtService.generateToken(user);
 
-        return new AuthResponseDTO(token, user.getUserType().name(), user.getAuthorities().stream()
+        return AuthResponseDTO.from(user, token, user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
     }

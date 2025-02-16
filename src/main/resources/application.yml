@@ -17,6 +17,8 @@ logging:
       springframework:
         security: DEBUG
 
+default:
+  password: demo@123
 admin:
   email: admin@example.com
   password: admin@123
