@@ -42,6 +42,14 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+    @Transactional
+    public User resetPassword(String email, String newPassword) {
+        User user = getUserByEmail(email);
+        user.updatePassword(newPassword);
+        userRepository.save(user);
+        return user;
+    }
+
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Email already exists"));

@@ -21,7 +21,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userService.getUserByEmail(email);
-
+        if (user.isPasswordResetRequired()) {
+            return user;
+        }
         if (!user.isActive()) {
             throw new DisabledException("User account is not active.");
         }

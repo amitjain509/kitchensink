@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -48,6 +49,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if(CollectionUtils.isEmpty(roles)) {
+            return List.of();
+        }
         return roles.stream()
                 .flatMap(role -> role.getPermissions().stream())
                 .map(permission -> new org.springframework.security.core.authority.SimpleGrantedAuthority(permission.getName()))
@@ -109,6 +113,8 @@ public class User implements UserDetails {
 
     public void updatePassword(String password) {
         this.password = password;
+        this.isPasswordResetRequired = false;
+        this.active = true;
     }
 
     public void updateRoles(List<Role> roles) {

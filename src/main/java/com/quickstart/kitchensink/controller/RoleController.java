@@ -35,9 +35,9 @@ public class RoleController {
                 .body(roleDTO);
     }
 
-    @GetMapping("/{roleName}")
-    public ResponseEntity<?> getRole(@NotBlank @PathVariable String roleName) throws RoleNotFoundException {
-        RoleDTO roleDTO = roleService.getRole(roleName);
+    @GetMapping("/{roleId}")
+    public ResponseEntity<?> getRole(@NotBlank @PathVariable String roleId) throws RoleNotFoundException {
+        RoleDTO roleDTO = roleService.getRole(roleId);
         return ResponseEntity.ok(roleDTO);
     }
 
@@ -47,10 +47,10 @@ public class RoleController {
         return ResponseEntity.accepted().build();
     }
 
-    @PutMapping("/{roleName}/assign-permissions")
-    public ResponseEntity<?> assignPermissionsToRole(@NotBlank @PathVariable String roleName,
+    @PutMapping("/{roleId}/assign-permissions")
+    public ResponseEntity<?> assignPermissionsToRole(@NotBlank @PathVariable String roleId,
                                                      @Valid @RequestBody RolePermissionUpdateRequest request) throws RoleNotFoundException {
-        RoleDTO roleDTO = roleService.assignPermissionsToRole(roleName, request.getPermissions());
+        RoleDTO roleDTO = roleService.assignPermissionsToRole(roleId, request.getPermissions());
         return ResponseEntity.ok(roleDTO);
     }
 }

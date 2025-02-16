@@ -23,6 +23,4 @@ public class PasswordResetRequest {
     @NotBlank
     @Size(max = 15, message = "Password must not exceed 15 characters")
     private String newPassword;
-
-    private UserType userType;
 }

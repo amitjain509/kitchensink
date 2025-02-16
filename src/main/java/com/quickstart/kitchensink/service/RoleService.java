@@ -38,9 +38,9 @@ public class RoleService {
         roleRepository.deleteById(roleId);
     }
 
-    public RoleDTO getRole(String roleName) throws RoleNotFoundException {
-        Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new RoleNotFoundException(String.format("Role %s not found", roleName)));
+    public RoleDTO getRole(String roleId) throws RoleNotFoundException {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RoleNotFoundException(String.format("Role %s not found", roleId)));
 
         return RoleMapper.fromEntity(role);
     }
@@ -68,12 +68,13 @@ public class RoleService {
         return roleRepository.existsById(roleId);
     }
 
-    public RoleDTO assignPermissionsToRole(String roleName, List<String> permissions) throws RoleNotFoundException {
+    public RoleDTO assignPermissionsToRole(String roleId, List<String> permissions) throws RoleNotFoundException {
         List<Permission> permissionList = permissionService.validateAndGetPermissions(permissions);
-        Role role = roleRepository.findByName(roleName)
+        Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RoleNotFoundException("Role not found"));
 
         role.updatePermissions(permissionList);
+        roleRepository.save(role);
         return RoleMapper.fromEntity(role);
     }
 }
