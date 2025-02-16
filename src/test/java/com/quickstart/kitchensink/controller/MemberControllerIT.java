@@ -1,10 +1,7 @@
 package com.quickstart.kitchensink.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.quickstart.kitchensink.dto.MemberDTO;
-import com.quickstart.kitchensink.model.Member;
-import com.quickstart.kitchensink.repository.MemberRepository;
-import com.quickstart.kitchensink.request.MemberRequest;
+import com.quickstart.kitchensink.dto.request.MemberRequest;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

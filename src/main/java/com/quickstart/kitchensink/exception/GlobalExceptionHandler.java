@@ -1,6 +1,7 @@
 package com.quickstart.kitchensink.exception;
 
 import com.mongodb.DuplicateKeyException;
+import com.sun.jdi.request.DuplicateRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -21,6 +22,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({DuplicateKeyException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleExceptions(RuntimeException ex) {
+        return getStringObjectMap(ex);
+    }
+
+    @ExceptionHandler({DuplicateRequestException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleDuplicateRequestException(RuntimeException ex) {
+        return getStringObjectMap(ex);
+    }
+
+    private Map<String, Object> getStringObjectMap(RuntimeException ex) {
         errorMessages.add(ex.getMessage());
 
         Map<String, Object> response = new HashMap<>();

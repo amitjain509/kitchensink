@@ -1,46 +1,38 @@
 package com.quickstart.kitchensink.controller;
 
-import com.quickstart.kitchensink.dto.MemberDTO;
-import com.quickstart.kitchensink.request.MemberRequest;
-import com.quickstart.kitchensink.response.LoginResponse;
-import com.quickstart.kitchensink.service.AuthenticationService;
-import com.quickstart.kitchensink.service.JwtService;
-import jakarta.validation.Valid;
+import com.quickstart.kitchensink.dto.response.AuthResponseDTO;
+import com.quickstart.kitchensink.model.User;
+import com.quickstart.kitchensink.security.jwt.JwtService;
+import com.quickstart.kitchensink.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.security.sasl.AuthenticationException;
+import java.util.stream.Collectors;
 
 @RequestMapping("/auth")
 @RestController
 @RequiredArgsConstructor
 public class AuthenticationController {
+    private final AuthenticationManager authenticationManager;
+    private final UserService userService;
     private final JwtService jwtService;
-    private final AuthenticationService authenticationService;
-
-    @PostMapping("/signup")
-    ResponseEntity<String> addMember(@Valid @RequestBody MemberRequest memberRequest) {
-        try {
-            authenticationService.signup(memberRequest);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody MemberRequest memberRequest) throws AuthenticationException {
-        MemberDTO memberDTO = authenticationService.authenticate(memberRequest);
+    public AuthResponseDTO authenticate(@RequestParam("email") String email, @RequestParam("password") String password) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
-        String jwtToken = jwtService.generateToken(memberRequest);
+        User user = userService.getUserByEmail(email);
+        String token = jwtService.generateToken(user);
 
-        LoginResponse loginResponse = LoginResponse.of(jwtToken, jwtService.getExpirationTime(),
-                memberRequest.getEmail(), memberDTO.getRoles());
-
-        return ResponseEntity.ok(loginResponse);
+        return new AuthResponseDTO(token, user.getUserType().name(), user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
     }
 }

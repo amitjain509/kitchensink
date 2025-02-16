@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI}
+      uri: mongodb://admin:password@localhost:27017/kitchensink?authSource=admin
       auto-index-creation: true
   application:
     name: kitchensink
@@ -18,8 +18,8 @@ logging:
         security: DEBUG
 
 admin:
-  email: ${ADMIN_EMAIL}
-  password: ${ADMIN_PASSWORD}
+  email: admin@example.com
+  password: admin@123
 
 management:
   endpoints:

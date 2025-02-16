@@ -1,0 +1,61 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="001-create-permissions" author="system">
+        <insert tableName="permissions">
+            <column name="name" value="ALL"/>
+            <column name="description" value="Grants all permissions"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="name" value="USER_CREATE"/>
+            <column name="description" value="Can create users"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="name" value="USER_DELETE"/>
+            <column name="description" value="Can delete users"/>
+        </insert>
+
+        <!-- Member Permissions -->
+        <insert tableName="permissions">
+            <column name="name" value="MEMBER_CREATE"/>
+            <column name="description" value="Can create members"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="name" value="MEMBER_DELETE"/>
+            <column name="description" value="Can delete members"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="name" value="MEMBER_EDIT"/>
+            <column name="description" value="Can edit member details"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="name" value="MEMBER_VIEW"/>
+            <column name="description" value="Can view home dashboard"/>
+        </insert>
+
+        <insert tableName="permissions">
+            <column name="name" value="MEMBER_LOCK"/>
+            <column name="description" value="Can lock a member"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="name" value="MEMBER_EXPIRE_PASSWORD"/>
+            <column name="description" value="Can expire a member's password"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="name" value="MEMBER_RESET_PASSWORD"/>
+            <column name="description" value="Can reset a member's password"/>
+        </insert>
+
+        <!-- Rollback: Remove all permissions on rollback -->
+        <rollback>
+            <delete tableName="permissions">
+                <where>name IN ('ALL', 'USER_CREATE', 'USER_DELETE', 'MEMBER_CREATE', 'MEMBER_DELETE',
+                    'MEMBER_EDIT', 'MEMBER_VIEW', 'MEMBER_LOCK',
+                    'MEMBER_EXPIRE_PASSWORD', 'MEMBER_RESET_PASSWORD')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

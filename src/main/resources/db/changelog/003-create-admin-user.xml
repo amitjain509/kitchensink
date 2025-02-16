@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- ChangeSet to Seed Admin User -->
+    <changeSet id="003-create-admin-user" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM users WHERE email = '${admin.email}'
+                </sqlCheck>
+            </not>
+        </preConditions>
+
+        <!-- Insert Admin User if not already existing -->
+        <insert tableName="users">
+            <column name="email" value="${admin.email}" />
+            <column name="password" value="${admin.password}" />
+            <column name="active" value="true" />
+            <column name="roles" value="ADMIN" />
+        </insert>
+
+        <!-- Assigning the Admin Role if needed -->
+        <insert tableName="roles">
+            <column name="name" value="ADMIN" />
+        </insert>
+
+        <rollback>
+            <delete tableName="users">
+                <where>email = '${admin.email}'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
