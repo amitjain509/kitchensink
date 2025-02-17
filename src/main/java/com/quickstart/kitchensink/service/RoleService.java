@@ -4,15 +4,17 @@ import com.quickstart.kitchensink.dto.response.RoleDTO;
 import com.quickstart.kitchensink.mapper.RoleMapper;
 import com.quickstart.kitchensink.model.Permission;
 import com.quickstart.kitchensink.model.Role;
+import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.repository.RoleRepository;
-import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ public class RoleService {
     @Transactional
     public RoleDTO createRole(RoleDTO roleDTO) {
         if (isRoleExists(roleDTO.getRoleName())) {
-            throw new DuplicateRequestException(String.format("Role already exists : %s", roleDTO.getRoleName()));
+            throw new DuplicateKeyException(String.format("Role already exists : %s", roleDTO.getRoleName()));
         }
         Role role = Role.of(roleDTO.getRoleName(), roleDTO.getRoleDescription());
         role = roleRepository.save(role);
@@ -55,7 +57,7 @@ public class RoleService {
 
     public List<RoleDTO> getAllRoles() {
         return roleRepository.findAll()
-                .stream()
+                .stream().filter(r -> !r.getName().equals("ADMIN"))
                 .map(RoleMapper::fromEntityWithoutPermission)
                 .toList();
     }
@@ -76,5 +78,14 @@ public class RoleService {
         role.updatePermissions(permissionList);
         roleRepository.save(role);
         return RoleMapper.fromEntity(role);
+    }
+
+    @Transactional
+    public void assignRoleToUser(User user, String roleId) {
+        Optional<Role> role = roleRepository.findById(roleId);
+        if (role.isEmpty()) {
+            return;
+        }
+        user.updateRoles(List.of(role.get()));
     }
 }

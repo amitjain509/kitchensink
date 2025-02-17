@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,9 @@ public class UserService {
         validateExistingUser(userDTO);
 
         User user = User.toEntity(userDTO);
+
+        roleService.assignRoleToUser(user, getRoleIdIfExists(userDTO));
+
         return UserMapper.fromEntity(userRepository.save(user));
     }
 
@@ -102,5 +106,12 @@ public class UserService {
         if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
+    }
+
+    private String getRoleIdIfExists(UserDTO userDTO) {
+        if (CollectionUtils.isEmpty(userDTO.getRoles())) {
+            return null;
+        }
+        return userDTO.getRoles().getFirst().getRoleId();
     }
 }

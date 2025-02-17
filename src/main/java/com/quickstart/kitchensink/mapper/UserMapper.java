@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserMapper {
     private final PasswordEncoder passwordEncoder;
+
     @Value("${default.password}")
     private String defaultPassword;
 
@@ -35,6 +36,7 @@ public class UserMapper {
                 .phoneNumber(request.getPhoneNumber())
                 .password(passwordEncoder.encode(defaultPassword))
                 .userType(request.getUserType())
+                .roles(List.of(RoleDTO.of(request.getRole(), null, null)))
                 .build();
     }
 

@@ -2,7 +2,6 @@ package com.quickstart.kitchensink.config;
 
 import com.quickstart.kitchensink.security.CustomUserDetailsService;
 import com.quickstart.kitchensink.security.jwt.JwtRequestFilter;
-import liquibase.integration.spring.SpringLiquibase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,9 +52,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
+                .cors(c-> corsFilter())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/roles", "/roles/**", "/users/**",
-                                "/users/userType/**", "/auth/**", "/permissions").permitAll()
+                        .requestMatchers( "/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
@@ -66,7 +65,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200")); // Allow frontend
+        config.setAllowedOrigins(List.of("https://demo.kitchensink.com")); // Allow frontend
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

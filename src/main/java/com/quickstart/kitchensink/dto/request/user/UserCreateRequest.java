@@ -30,5 +30,7 @@ public class UserCreateRequest {
     @Size(max = 15, message = "Phone number must not exceed 15 characters")
     private String phoneNumber;
 
+    private String role;
+
     private UserType userType;
 }
