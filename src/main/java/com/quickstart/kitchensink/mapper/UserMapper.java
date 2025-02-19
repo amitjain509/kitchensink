@@ -49,12 +49,10 @@ public class UserMapper {
                 .build();
     }
 
-    public PasswordDTO fromPasswordUpdateRequest(PasswordResetRequest request) {
-        return PasswordDTO.of(passwordEncoder.encode(request.getOldPassword()),
-                passwordEncoder.encode(request.getNewPassword()));
-    }
-
     public static UserDTO fromEntity(User user) {
+        if (Objects.isNull(user)) {
+            return null;
+        }
         return UserDTO.builder()
                 .userId(user.getId())
                 .name(user.getName())

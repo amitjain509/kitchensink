@@ -9,6 +9,7 @@ import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -30,7 +31,6 @@ public class UserService {
         User user = User.toEntity(userDTO);
 
         roleService.assignRoleToUser(user, getRoleIdIfExists(userDTO));
-
         return UserMapper.fromEntity(userRepository.save(user));
     }
 
@@ -56,7 +56,7 @@ public class UserService {
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Email already exists"));
+                .orElseThrow(() -> new UsernameNotFoundException("User does not exists"));
     }
 
     public List<UserDTO> findAllUsersByUserType(UserType userType) {
@@ -91,9 +91,9 @@ public class UserService {
     }
 
     @Transactional
-    public void assignRolesToUser(String email, List<String> roles) {
+    public void assignRolesToUser(String userId, List<String> roles) {
         List<Role> roleList = roleService.validateAndGetRoles(roles);
-        User user = getUserByEmail(email);
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         user.updateRoles(roleList);
         userRepository.save(user);
     }

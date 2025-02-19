@@ -26,10 +26,11 @@ public class UserCreateRequest {
     private String email;
 
     @NotBlank(message = "Phone number cannot be blank")
-    @Pattern(regexp = "^(\\+91[\\s-]?)?[6-9]\\d{9}$", message = "Invalid Indian phone number format")
+    @Pattern(regexp = "^(\\[\\s-]?)?[6-9]\\d{9}$", message = "Invalid Indian phone number format")
     @Size(max = 15, message = "Phone number must not exceed 15 characters")
     private String phoneNumber;
 
+    @NotBlank
     private String role;
 
     private UserType userType;

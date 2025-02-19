@@ -19,16 +19,14 @@ public class PermissionSeeder {
                     Permission.of("ALL", "Grants all permissions"),
                     Permission.of("USER_CREATE", "Can create users"),
                     Permission.of("USER_DELETE", "Can delete users"),
+                    Permission.of("USER_EDIT", "Can edit user details"),
+                    Permission.of("USER_VIEW", "Can view home dashboard"),
+                    Permission.of("USER_LOCK", "Can lock a user"),
+                    Permission.of("USER_EXPIRE_PASSWORD", "Can expire a user's password"),
 
-                    // Member Permissions
-                    Permission.of("MEMBER_CREATE", "Can create members"),
-                    Permission.of("MEMBER_DELETE", "Can delete members"),
-                    Permission.of("MEMBER_EDIT", "Can edit member details"),
-                    Permission.of("MEMBER_VIEW", "Can view home dashboard"),
-
-                    Permission.of("MEMBER_LOCK", "Can lock a member"),
-                    Permission.of("MEMBER_EXPIRE_PASSWORD", "Can expire a member's password"),
-                    Permission.of("MEMBER_RESET_PASSWORD", "Can reset a member's password")
+                    Permission.of("USER_PROFILE_EDIT", "Can edit user profile"),
+                    Permission.of("USER_PROFILE_VIEW", "Can view user profile"),
+                    Permission.of("USER_RESET_PASSWORD", "Can reset a user's password")
             );
             permissionRepository.saveAll(permissions);
         }

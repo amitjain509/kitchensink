@@ -15,6 +15,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
@@ -49,11 +50,11 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(CollectionUtils.isEmpty(roles)) {
+        if (CollectionUtils.isEmpty(roles)) {
             return List.of();
         }
         return roles.stream()
-                .flatMap(role -> role.getPermissions().stream())
+                .flatMap(role -> Optional.ofNullable(role.getPermissions()).orElse(List.of()).stream())
                 .map(permission -> new org.springframework.security.core.authority.SimpleGrantedAuthority(permission.getName()))
                 .collect(Collectors.toList());
     }

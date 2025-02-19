@@ -12,11 +12,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PasswordResetRequest {
+    @NotBlank
     private String email;
 
     @Setter
     @NotBlank
-    @Size(max = 15, message = "Password must not exceed 15 characters")
     private String oldPassword;
 
     @Setter

@@ -6,14 +6,15 @@ import com.quickstart.kitchensink.dto.response.AuthResponseDTO;
 import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.security.jwt.JwtService;
 import com.quickstart.kitchensink.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/auth")
 @RestController
@@ -25,19 +26,17 @@ public class AuthenticationController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public AuthResponseDTO authenticate(@RequestBody AuthRequestDTO authRequestDTO) {
+    public AuthResponseDTO authenticate(@Valid @RequestBody AuthRequestDTO authRequestDTO) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getEmail(), authRequestDTO.getPassword()));
 
         User user = userService.getUserByEmail(authRequestDTO.getEmail());
         String token = jwtService.generateToken(user);
 
-        return AuthResponseDTO.from(user, token, user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()));
+        return AuthResponseDTO.from(user, token);
     }
 
     @PostMapping("/reset-password")
-    public AuthResponseDTO authenticate(@RequestBody PasswordResetRequest passwordResetRequest) {
+    public AuthResponseDTO authenticate(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 passwordResetRequest.getEmail(),
                 passwordResetRequest.getOldPassword()));
@@ -46,8 +45,6 @@ public class AuthenticationController {
                 passwordEncoder.encode(passwordResetRequest.getNewPassword()));
         String token = jwtService.generateToken(user);
 
-        return AuthResponseDTO.from(user, token, user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()));
+        return AuthResponseDTO.from(user, token);
     }
 }

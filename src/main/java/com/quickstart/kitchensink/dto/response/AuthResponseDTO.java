@@ -1,13 +1,14 @@
 package com.quickstart.kitchensink.dto.response;
 
 import com.quickstart.kitchensink.enums.UserType;
-import com.quickstart.kitchensink.mapper.UserMapper;
 import com.quickstart.kitchensink.model.User;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -21,14 +22,16 @@ public class AuthResponseDTO {
     private boolean isPasswordResetRequired;
 
 
-    public static AuthResponseDTO from(User user, String token, List<String> permissions) {
+    public static AuthResponseDTO from(User user, String token) {
         return AuthResponseDTO.builder()
                 .userId(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .token(token)
                 .userType(user.getUserType())
-                .permissions(permissions)
+                .permissions(Optional.ofNullable(user.getAuthorities()).orElse(List.of()).stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList()))
                 .isPasswordResetRequired(user.isPasswordResetRequired())
                 .build();
     }
