@@ -84,7 +84,7 @@ class DataSeederTest {
         dataSeeder.run();
 
         verify(permissionRepository).saveAll(permissionCaptor.capture());
-        Assertions.assertEquals(permissionCaptor.getValue().size(), 10);
+        Assertions.assertEquals(permissionCaptor.getValue().size(), 14);
 
         verify(roleRepository).saveAll(roleCaptor.capture());
         Assertions.assertEquals(roleCaptor.getValue().size(), 2);

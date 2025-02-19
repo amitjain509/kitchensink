@@ -1,0 +1,17 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://admin:password@localhost:27017/testDb?serverSelectionTimeoutMS=5000
+
+default:
+  password: demo@123
+
+admin:
+  email: admin@example.com
+  password: admin@123
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

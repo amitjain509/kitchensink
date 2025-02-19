@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
 
     private final List<String> errorMessages = new ArrayList<>();
 
-    @ExceptionHandler({DuplicateKeyException.class})
+    @ExceptionHandler({DuplicateKeyException.class, IllegalArgumentException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleExceptions(RuntimeException ex) {
         return getStringObjectMap(ex);

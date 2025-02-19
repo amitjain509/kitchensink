@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.relation.RoleNotFoundException;
@@ -22,11 +23,13 @@ public class RoleController {
     private final RoleService roleService;
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_VIEW')")
     public ResponseEntity<?> getRoles() {
         return ResponseEntity.ok(roleService.getAllRoles());
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_CREATE')")
     public ResponseEntity<?> createRole(@Valid @RequestBody RoleCreateRequest request) {
         RoleDTO roleDTO = RoleMapper.fromRoleCreateRequest(request);
         roleDTO = roleService.createRole(roleDTO);
@@ -36,18 +39,21 @@ public class RoleController {
     }
 
     @GetMapping("/{roleId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_VIEW')")
     public ResponseEntity<?> getRole(@NotBlank @PathVariable String roleId) throws RoleNotFoundException {
         RoleDTO roleDTO = roleService.getRole(roleId);
         return ResponseEntity.ok(roleDTO);
     }
 
     @DeleteMapping("/{roleId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_DELETE')")
     public ResponseEntity<?> deleteRole(@NotBlank @PathVariable String roleId) throws RoleNotFoundException {
         roleService.deleteRole(roleId);
         return ResponseEntity.accepted().build();
     }
 
     @PutMapping("/{roleId}/assign-permissions")
+    @PreAuthorize("hasAnyAuthority('ROLE_EDIT')")
     public ResponseEntity<?> assignPermissionsToRole(@NotBlank @PathVariable String roleId,
                                                      @Valid @RequestBody RolePermissionUpdateRequest request) throws RoleNotFoundException {
         RoleDTO roleDTO = roleService.assignPermissionsToRole(roleId, request.getPermissions());

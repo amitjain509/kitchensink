@@ -182,7 +182,7 @@ class UserServiceTest {
         List<Role> roles = List.of(role);
 
         when(roleService.validateAndGetRoles(roleNames)).thenReturn(roles);
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         userService.assignRolesToUser(user.getEmail(), roleNames);
 
@@ -193,11 +193,9 @@ class UserServiceTest {
     void assignRolesToUser_ShouldThrowException_WhenUserNotFound() {
         List<String> roleNames = List.of("ROLE_USER");
 
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
-
         assertThatThrownBy(() -> userService.assignRolesToUser(user.getEmail(), roleNames))
                 .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessage("User does not exists");
+                .hasMessage("User does not exist");
 
         verify(userRepository, never()).save(any(User.class));
     }

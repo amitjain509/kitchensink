@@ -26,7 +26,12 @@ public class PermissionSeeder {
 
                     Permission.of("USER_PROFILE_EDIT", "Can edit user profile"),
                     Permission.of("USER_PROFILE_VIEW", "Can view user profile"),
-                    Permission.of("USER_RESET_PASSWORD", "Can reset a user's password")
+                    Permission.of("USER_RESET_PASSWORD", "Can reset a user's password"),
+
+                    Permission.of("ROLE_CREATE", "Can create roles"),
+                    Permission.of("ROLE_EDIT", "Can edit role and assign permission to role"),
+                    Permission.of("ROLE_VIEW", "Can view roles"),
+                    Permission.of("ROLE_DELETE", "Can delete roles")
             );
             permissionRepository.saveAll(permissions);
         }

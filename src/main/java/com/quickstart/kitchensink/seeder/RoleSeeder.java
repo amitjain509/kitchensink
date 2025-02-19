@@ -22,7 +22,7 @@ public class RoleSeeder {
             Map<String, Permission> permissionMap = permissionRepository.findAll().stream()
                     .collect(Collectors.toMap(Permission::getName, p -> p));
 
-            Role adminRole = Role.of("ADMIN", "Administrator role", List.of(permissionMap.get("ALL")));
+            Role adminRole = Role.of("ADMIN", "Administrator role", permissionMap.values().stream().toList());
 
             Role userRole = Role.of("DEFAULT", "User role",
                     List.of(permissionMap.get("USER_PROFILE_VIEW"), permissionMap.get("USER_RESET_PASSWORD")));

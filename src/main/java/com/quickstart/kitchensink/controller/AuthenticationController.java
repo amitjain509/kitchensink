@@ -8,6 +8,7 @@ import com.quickstart.kitchensink.security.jwt.JwtService;
 import com.quickstart.kitchensink.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,6 +37,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/reset-password")
+    @PreAuthorize("hasAnyAuthority('USER_RESET_PASSWORD')")
     public AuthResponseDTO authenticate(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 passwordResetRequest.getEmail(),

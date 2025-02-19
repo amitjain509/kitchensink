@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -30,21 +29,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        String email = null;
-        String jwtToken = null;
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwtToken = authHeader.substring(7);
-            try {
-                email = jwtUtil.extractUsername(jwtToken);
-            } catch (ExpiredJwtException e) {
-                logger.error("JWT Token expired", e);
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
-                response.getWriter().write("JWT Token has expired");
-                response.getWriter().flush();
-                return;
-            }
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            chain.doFilter(request, response);
+            return;
         }
+
+        String email;
+        String jwtToken = authHeader.substring(7);
+        try {
+            email = jwtUtil.extractUsername(jwtToken);
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT Token expired", e);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+            response.getWriter().write("JWT Token has expired");
+            response.getWriter().flush();
+            return;
+        }
+
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
