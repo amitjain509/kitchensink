@@ -47,9 +47,17 @@ public class UserService {
     }
 
     @Transactional
-    public User resetPassword(String email, String newPassword) {
+    public User updatePassword(String email, String newPassword) {
         User user = getUserByEmail(email);
         user.updatePassword(newPassword);
+        userRepository.save(user);
+        return user;
+    }
+
+    @Transactional
+    public User resetPassword(String email) {
+        User user = getUserByEmail(email);
+        user.resetPassword();
         userRepository.save(user);
         return user;
     }

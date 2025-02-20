@@ -7,15 +7,14 @@ import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.security.jwt.JwtService;
 import com.quickstart.kitchensink.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/auth")
 @RestController
@@ -43,10 +42,17 @@ public class AuthenticationController {
                 passwordResetRequest.getEmail(),
                 passwordResetRequest.getOldPassword()));
 
-        User user = userService.resetPassword(passwordResetRequest.getEmail(),
+        User user = userService.updatePassword(passwordResetRequest.getEmail(),
                 passwordEncoder.encode(passwordResetRequest.getNewPassword()));
         String token = jwtService.generateToken(user);
 
         return AuthResponseDTO.from(user, token);
+    }
+
+    @PutMapping("/reset-password/{email}")
+    @PreAuthorize("hasAnyAuthority('USER_RESET_PASSWORD')")
+    public ResponseEntity<?> resetPassword(@NotBlank @PathVariable String email) {
+        userService.resetPassword(email);
+        return ResponseEntity.accepted().build();
     }
 }

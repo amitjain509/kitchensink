@@ -83,7 +83,7 @@ class AuthenticationControllerTest {
         String token = "mockToken";
 
         when(passwordEncoder.encode(request.getNewPassword())).thenReturn(encodedPassword);
-        when(userService.resetPassword(request.getEmail(), encodedPassword)).thenReturn(user);
+        when(userService.updatePassword(request.getEmail(), encodedPassword)).thenReturn(user);
         when(jwtService.generateToken(user)).thenReturn(token);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/auth/reset-password")
@@ -93,7 +93,7 @@ class AuthenticationControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(user.getEmail()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.token").value(token));
 
-        verify(userService).resetPassword(request.getEmail(), encodedPassword);
+        verify(userService).updatePassword(request.getEmail(), encodedPassword);
         verify(jwtService).generateToken(user);
     }
 

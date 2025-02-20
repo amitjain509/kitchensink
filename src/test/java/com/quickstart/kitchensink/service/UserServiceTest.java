@@ -99,7 +99,7 @@ class UserServiceTest {
     void resetPassword_ShouldUpdatePasswordSuccessfully() {
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
-        userService.resetPassword(user.getEmail(), "newPassword");
+        userService.updatePassword(user.getEmail(), "newPassword");
 
         verify(userRepository, times(1)).save(user);
     }
@@ -108,7 +108,7 @@ class UserServiceTest {
     void resetPassword_ShouldThrowException_WhenUserNotFound() {
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.resetPassword(user.getEmail(), "newPassword"))
+        assertThatThrownBy(() -> userService.updatePassword(user.getEmail(), "newPassword"))
                 .isInstanceOf(UsernameNotFoundException.class)
                 .hasMessage("User does not exists");
 

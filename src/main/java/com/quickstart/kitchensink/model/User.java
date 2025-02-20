@@ -119,6 +119,10 @@ public class User implements UserDetails {
         this.active = true;
     }
 
+    public void resetPassword() {
+        this.isPasswordResetRequired = true;
+    }
+
     public void updateRoles(List<Role> roles) {
         this.roles = roles;
     }

@@ -15,7 +15,7 @@ public class PermissionController {
     private final PermissionService permissionService;
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_EDIT')")
+    @PreAuthorize("hasAnyAuthority('ROLE_VIEW')")
     public ResponseEntity<?> getPermissions() {
         return ResponseEntity.ok(permissionService.getAllPermissions());
     }
