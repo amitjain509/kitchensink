@@ -31,7 +31,7 @@ public class UserCreateRequest {
     private String phoneNumber;
 
     @NotBlank
-    private String role;
+    private String roleId;
 
     private UserType userType;
 }

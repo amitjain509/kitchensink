@@ -23,5 +23,8 @@ public class UserUpdateRequest {
 
     private String email;
 
+    @NotBlank
+    private String roleId;
+
     private UserType userType;
 }

@@ -31,4 +31,11 @@ public class RoleMapper {
                 role.getName(),
                 role.getDescription());
     }
+
+    public static Role toEntity(RoleDTO roleDTO) {
+        if(Objects.isNull(roleDTO)) {
+            return null;
+        }
+        return Role.of(roleDTO.getRoleId(), roleDTO.getRoleName(), roleDTO.getRoleDescription());
+    }
 }

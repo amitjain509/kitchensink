@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,10 +36,10 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(UserDTO userDTO) {
+    public UserDTO updateUser(UserDTO userDTO) {
         User user = getUserByEmail(userDTO.getEmail());
         user.updateUserDetails(userDTO);
-        userRepository.save(user);
+        return UserMapper.fromEntity(userRepository.save(user));
     }
 
     @Transactional
@@ -104,6 +105,13 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         user.updateRoles(roleList);
         userRepository.save(user);
+    }
+
+    public boolean isRoleAssociatedWithUser(String roleId) {
+        if (!StringUtils.hasLength(roleId)) {
+            throw new IllegalArgumentException("RoleId cannot be empty");
+        }
+        return userRepository.existsByRoles_Id(roleId);
     }
 
     public boolean isMemberExistByEmailId(String email) {

@@ -39,6 +39,14 @@ public class Role {
                 .build();
     }
 
+    public static Role of(String roleId, String name, String description) {
+        return Role.builder()
+                .id(roleId)
+                .name(name)
+                .description(description)
+                .build();
+    }
+
     public void updatePermissions(List<Permission> permissions) {
         this.permissions = permissions;
     }

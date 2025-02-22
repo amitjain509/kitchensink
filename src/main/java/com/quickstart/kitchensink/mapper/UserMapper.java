@@ -36,12 +36,13 @@ public class UserMapper {
                 .phoneNumber(request.getPhoneNumber())
                 .password(passwordEncoder.encode(defaultPassword))
                 .userType(request.getUserType())
-                .roles(List.of(RoleDTO.of(request.getRole(), null, null)))
+                .roles(List.of(RoleDTO.of(request.getRoleId(), null, null)))
                 .build();
     }
 
-    public UserDTO fromUpdateRequest(UserUpdateRequest request) {
+    public UserDTO fromUpdateRequest(UserUpdateRequest request, RoleDTO roleDTO) {
         return UserDTO.builder()
+                .roles(List.of(roleDTO))
                 .name(request.getName())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
@@ -82,7 +83,7 @@ public class UserMapper {
         }
         return roles.stream()
                 .filter(Objects::nonNull) // Filter out null roles
-                .flatMap(role -> role.getPermissions().stream()) // Flatten permissions from each role
+                .flatMap(role -> Optional.ofNullable(role.getPermissions()).orElse(List.of()).stream()) // Flatten permissions from each role
                 .map(Permission::getName) // Extract permission names
                 .collect(Collectors.toSet());
     }

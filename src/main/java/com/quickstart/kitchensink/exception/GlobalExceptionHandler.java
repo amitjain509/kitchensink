@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -43,56 +44,73 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        return getStringObjectMap(ex.getBindingResult(), HttpStatus.BAD_REQUEST);
+    }
+
+    private static Map<String, Object> getStringObjectMap(BindingResult bindingResult, HttpStatus httpStatus) {
         Map<String, Object> response = new HashMap<>();
         List<String> errorMessages = new ArrayList<>();
 
-        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+        for (FieldError error : bindingResult.getFieldErrors()) {
             errorMessages.add(error.getField() + ": " + error.getDefaultMessage());
         }
 
-        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("status", httpStatus.value());
         response.put("message", "Validation failed");
         response.put("errors", errorMessages);
-
         return response;
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleEmailConflict(EmailAlreadyExistsException ex) {
-        Map<String, String> error = new HashMap<>();
+    public Map<String, Object> handleEmailConflict(EmailAlreadyExistsException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", HttpStatus.CONFLICT.value());
+        error.put("email", ex.getReason());
+        return error;
+    }
+
+    @ExceptionHandler(EntityAssociationException.class)
+    @ResponseStatus(HttpStatus.FAILED_DEPENDENCY)
+    public Map<String, Object> handleEntityAssociationException(EntityAssociationException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", HttpStatus.FAILED_DEPENDENCY.value());
         error.put("email", ex.getReason());
         return error;
     }
 
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public Map<String, String> handleAuthenticationException(AuthenticationException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("authentication_error", ex.getMessage());
+    public Map<String, Object> handleAuthenticationException(AuthenticationException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", HttpStatus.UNAUTHORIZED.value());
+        error.put("message", "Authentication Failed");
         return error;
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Map<String, String> handleAuthenticationException(BadCredentialsException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("authentication_error", ex.getMessage());
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Map<String, Object> handleAuthenticationException(BadCredentialsException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", HttpStatus.UNAUTHORIZED.value());
+        error.put("message", "Authentication Failed");
         return error;
     }
 
     @ExceptionHandler(RoleNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleRoleNotFoundException(RoleNotFoundException ex) {
-        Map<String, String> error = new HashMap<>();
+    public Map<String, Object> handleRoleNotFoundException(RoleNotFoundException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", HttpStatus.NOT_FOUND.value());
         error.put("role_error", ex.getMessage());
         return error;
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleUserNotFoundException(UsernameNotFoundException ex) {
-        Map<String, String> error = new HashMap<>();
+    public Map<String, Object> handleUserNotFoundException(UsernameNotFoundException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", HttpStatus.NOT_FOUND.value());
         error.put("user_error", ex.getMessage());
         return error;
     }

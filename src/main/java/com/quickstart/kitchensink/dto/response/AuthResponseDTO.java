@@ -1,6 +1,7 @@
 package com.quickstart.kitchensink.dto.response;
 
 import com.quickstart.kitchensink.enums.UserType;
+import com.quickstart.kitchensink.mapper.RoleMapper;
 import com.quickstart.kitchensink.model.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class AuthResponseDTO {
     private String email;
     private String token;
     private UserType userType;
+    private List<RoleDTO> roles;
     private List<String> permissions;
     private boolean isPasswordResetRequired;
 
@@ -29,6 +31,7 @@ public class AuthResponseDTO {
                 .email(user.getEmail())
                 .token(token)
                 .userType(user.getUserType())
+                .roles(Optional.ofNullable(user.getRoles()).orElse(List.of()).stream().map(RoleMapper::fromEntity).collect(Collectors.toList()))
                 .permissions(Optional.ofNullable(user.getAuthorities()).orElse(List.of()).stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList()))

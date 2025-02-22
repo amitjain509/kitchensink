@@ -2,6 +2,7 @@ package com.quickstart.kitchensink.model;
 
 import com.quickstart.kitchensink.dto.response.UserDTO;
 import com.quickstart.kitchensink.enums.UserType;
+import com.quickstart.kitchensink.mapper.RoleMapper;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
@@ -111,6 +112,8 @@ public class User implements UserDetails {
     public void updateUserDetails(UserDTO userDTO) {
         this.name = userDTO.getName();
         this.phoneNumber = userDTO.getPhoneNumber();
+        this.roles = Optional.ofNullable(userDTO.getRoles()).orElse(List.of())
+                .stream().map(RoleMapper::toEntity).collect(Collectors.toList());
     }
 
     public void updatePassword(String password) {

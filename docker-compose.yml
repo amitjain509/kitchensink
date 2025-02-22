@@ -43,7 +43,7 @@ services:
       - "4200:80"
     volumes:
       - ./nginx/nginx-angular.conf:/etc/nginx/nginx.conf:ro
-      - /Users/amitjain/Projects/kitchensink-frontend/dist/kitchensink-frontend/browser:/usr/share/nginx/html:ro
+      - /Users/amitjain/Projects/kitchensink-frontend v2/dist/aircraftly/browser:/usr/share/nginx/html:ro
     restart: always
     networks:
       - internal

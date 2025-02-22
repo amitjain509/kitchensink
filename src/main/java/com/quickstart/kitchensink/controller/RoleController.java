@@ -3,8 +3,10 @@ package com.quickstart.kitchensink.controller;
 import com.quickstart.kitchensink.dto.response.RoleDTO;
 import com.quickstart.kitchensink.dto.request.role.RoleCreateRequest;
 import com.quickstart.kitchensink.dto.request.role.RolePermissionUpdateRequest;
+import com.quickstart.kitchensink.exception.EntityAssociationException;
 import com.quickstart.kitchensink.mapper.RoleMapper;
 import com.quickstart.kitchensink.service.RoleService;
+import com.quickstart.kitchensink.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.net.URI;
 public class RoleController {
 
     private final RoleService roleService;
+    private final UserService userService;
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_VIEW')")
@@ -48,6 +51,9 @@ public class RoleController {
     @DeleteMapping("/{roleId}")
     @PreAuthorize("hasAnyAuthority('ROLE_DELETE')")
     public ResponseEntity<?> deleteRole(@NotBlank @PathVariable String roleId) throws RoleNotFoundException {
+        if (userService.isRoleAssociatedWithUser(roleId)) {
+            throw new EntityAssociationException(roleId);
+        }
         roleService.deleteRole(roleId);
         return ResponseEntity.accepted().build();
     }

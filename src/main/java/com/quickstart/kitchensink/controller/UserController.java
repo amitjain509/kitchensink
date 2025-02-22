@@ -2,9 +2,11 @@ package com.quickstart.kitchensink.controller;
 
 import com.quickstart.kitchensink.dto.request.user.UserCreateRequest;
 import com.quickstart.kitchensink.dto.request.user.UserUpdateRequest;
+import com.quickstart.kitchensink.dto.response.RoleDTO;
 import com.quickstart.kitchensink.dto.response.UserDTO;
 import com.quickstart.kitchensink.enums.UserType;
 import com.quickstart.kitchensink.mapper.UserMapper;
+import com.quickstart.kitchensink.service.RoleService;
 import com.quickstart.kitchensink.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.relation.RoleNotFoundException;
 import java.net.URI;
 import java.util.List;
 
@@ -22,6 +25,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final RoleService roleService;
     private final UserMapper userMapper;
 
     @PostMapping
@@ -33,9 +37,10 @@ public class UserController {
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('USER_EDIT', 'USER_PROFILE_EDIT')")
-    public ResponseEntity<Void> updateUser(@Valid @RequestBody UserUpdateRequest userRequest) {
-        userService.updateUser(userMapper.fromUpdateRequest(userRequest));
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserUpdateRequest userRequest) throws RoleNotFoundException {
+        RoleDTO roleDTO = roleService.getRole(userRequest.getRoleId());
+        UserDTO userDTO = userService.updateUser(userMapper.fromUpdateRequest(userRequest, roleDTO));
+        return ResponseEntity.ok(userDTO);
     }
 
     @DeleteMapping("/{userId}")
