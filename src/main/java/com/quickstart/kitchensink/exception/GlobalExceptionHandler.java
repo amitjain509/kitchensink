@@ -1,8 +1,8 @@
 package com.quickstart.kitchensink.exception;
 
-import com.mongodb.DuplicateKeyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
@@ -22,22 +22,19 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(KitchenSinkException.class)
+    public ResponseEntity<Map<String, Object>> handleKitchenException(KitchenSinkException ex) {
+        Map<String, Object> response = getStringObjectMap(ex);
 
-    private final List<String> errorMessages = new ArrayList<>();
-
-    @ExceptionHandler({DuplicateKeyException.class, IllegalArgumentException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, Object> handleExceptions(RuntimeException ex) {
-        return getStringObjectMap(ex);
+        return ResponseEntity.status(ex.getApplicationErrorCode().getHttpStatus()).body(response);
     }
 
-    private Map<String, Object> getStringObjectMap(RuntimeException ex) {
-        errorMessages.add(ex.getMessage());
-
+    private Map<String, Object> getStringObjectMap(KitchenSinkException ex) {
         Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("messages", errorMessages);
-
+        response.put("message", ex.getApplicationErrorCode().getErrorMessage());
+        response.put("status", ex.getApplicationErrorCode().getHttpStatus().value());
+        response.put("referenceId", ex.getReferenceId());
+        response.put("errorCode", ex.getApplicationErrorCode().getErrorCode());
         return response;
     }
 
@@ -46,7 +43,6 @@ public class GlobalExceptionHandler {
     public Map<String, Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
         return getStringObjectMap(ex.getBindingResult(), HttpStatus.BAD_REQUEST);
     }
-
     private static Map<String, Object> getStringObjectMap(BindingResult bindingResult, HttpStatus httpStatus) {
         Map<String, Object> response = new HashMap<>();
         List<String> errorMessages = new ArrayList<>();
@@ -59,24 +55,6 @@ public class GlobalExceptionHandler {
         response.put("message", "Validation failed");
         response.put("errors", errorMessages);
         return response;
-    }
-
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, Object> handleEmailConflict(EmailAlreadyExistsException ex) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("status", HttpStatus.CONFLICT.value());
-        error.put("email", ex.getReason());
-        return error;
-    }
-
-    @ExceptionHandler(EntityAssociationException.class)
-    @ResponseStatus(HttpStatus.FAILED_DEPENDENCY)
-    public Map<String, Object> handleEntityAssociationException(EntityAssociationException ex) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("status", HttpStatus.FAILED_DEPENDENCY.value());
-        error.put("email", ex.getReason());
-        return error;
     }
 
     @ExceptionHandler(AuthenticationException.class)
@@ -94,15 +72,6 @@ public class GlobalExceptionHandler {
         Map<String, Object> error = new HashMap<>();
         error.put("status", HttpStatus.UNAUTHORIZED.value());
         error.put("message", "Authentication Failed");
-        return error;
-    }
-
-    @ExceptionHandler(RoleNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, Object> handleRoleNotFoundException(RoleNotFoundException ex) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("status", HttpStatus.NOT_FOUND.value());
-        error.put("role_error", ex.getMessage());
         return error;
     }
 

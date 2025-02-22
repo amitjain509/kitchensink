@@ -69,7 +69,7 @@ class UserControllerIT extends AbstractBaseIntegrationTest {
 
     @Test
     void shouldUpdateUser() throws Exception {
-        UserUpdateRequest updateRequest = new UserUpdateRequest("9988776655", "John Updated", email, UserType.USER);
+        UserUpdateRequest updateRequest = new UserUpdateRequest("9988776655", "John Updated", email, "", UserType.USER);
 
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -1,6 +1,6 @@
 package com.quickstart.kitchensink.validators;
 
-import com.quickstart.kitchensink.exception.EmailAlreadyExistsException;
+import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.service.UserService;
 import jakarta.validation.ConstraintValidatorContext;
 import org.junit.jupiter.api.Test;
@@ -41,12 +41,12 @@ class UniqueEmailValidatorTest {
         String email = "existing@example.com";
         when(userService.isMemberExistByEmailId(email)).thenReturn(true);
 
-        EmailAlreadyExistsException exception = assertThrows(
-                EmailAlreadyExistsException.class,
+        KitchenSinkException exception = assertThrows(
+                KitchenSinkException.class,
                 () -> uniqueEmailValidator.isValid(email, context)
         );
 
-        assertTrue(exception.getMessage().contains(email));
+        assertTrue(exception.getReferenceId().contains(email));
         verify(userService, times(1)).isMemberExistByEmailId(email);
     }
 

@@ -1,18 +1,18 @@
 package com.quickstart.kitchensink.service;
 
 import com.quickstart.kitchensink.dto.response.RoleDTO;
+import com.quickstart.kitchensink.exception.ApplicationErrorCode;
+import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.mapper.RoleMapper;
 import com.quickstart.kitchensink.model.Permission;
 import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +25,10 @@ public class RoleService {
     @Transactional
     public RoleDTO createRole(RoleDTO roleDTO) {
         if (isRoleExists(roleDTO.getRoleName())) {
-            throw new DuplicateKeyException(String.format("Role already exists : %s", roleDTO.getRoleName()));
+            throw KitchenSinkException
+                    .builder(ApplicationErrorCode.DUPLICATE_ROLE)
+                    .referenceId(roleDTO.getRoleName())
+                    .build();
         }
         Role role = Role.of(roleDTO.getRoleName(), roleDTO.getRoleDescription());
         role = roleRepository.save(role);
@@ -33,16 +36,22 @@ public class RoleService {
     }
 
     @Transactional
-    public void deleteRole(String roleId) throws RoleNotFoundException {
+    public void deleteRole(String roleId) {
         if (!isRoleExistsByRoleId(roleId)) {
-            throw new RoleNotFoundException("Role does not exist");
+            throw KitchenSinkException
+                    .builder(ApplicationErrorCode.ROLE_NOT_FOUND)
+                    .referenceId(roleId)
+                    .build();
         }
         roleRepository.deleteById(roleId);
     }
 
-    public RoleDTO getRole(String roleId) throws RoleNotFoundException {
+    public RoleDTO getRole(String roleId) {
         Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new RoleNotFoundException(String.format("Role %s not found", roleId)));
+                .orElseThrow(() -> KitchenSinkException
+                        .builder(ApplicationErrorCode.ROLE_NOT_FOUND)
+                        .referenceId(roleId)
+                        .build());
 
         return RoleMapper.fromEntity(role);
     }
@@ -50,7 +59,10 @@ public class RoleService {
     public List<Role> validateAndGetRoles(List<String> roleNames) {
         List<Role> roles = roleRepository.findByNameIn(roleNames);
         if (CollectionUtils.isEmpty(roles)) {
-            throw new IllegalArgumentException("No valid roles found");
+            throw KitchenSinkException
+                    .builder(ApplicationErrorCode.ROLES_NOT_FOUND)
+                    .addErrorInformation("roles", roleNames)
+                    .build();
         }
         return roles;
     }
@@ -70,10 +82,13 @@ public class RoleService {
         return roleRepository.existsById(roleId);
     }
 
-    public RoleDTO assignPermissionsToRole(String roleId, List<String> permissions) throws RoleNotFoundException {
+    public RoleDTO assignPermissionsToRole(String roleId, List<String> permissions) {
         List<Permission> permissionList = permissionService.validateAndGetPermissions(permissions);
         Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new RoleNotFoundException("Role not found"));
+                .orElseThrow(() -> KitchenSinkException
+                        .builder(ApplicationErrorCode.ROLE_NOT_FOUND)
+                        .referenceId(roleId)
+                        .build());
 
         role.updatePermissions(permissionList);
         roleRepository.save(role);

@@ -1,6 +1,8 @@
 package com.quickstart.kitchensink.service;
 
 import com.quickstart.kitchensink.dto.PermissionDTO;
+import com.quickstart.kitchensink.exception.ApplicationErrorCode;
+import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.model.Permission;
 import com.quickstart.kitchensink.repository.PermissionRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,9 @@ public class PermissionService {
         }
         List<Permission> permissionList = permissionRepository.findByNameIn(permissions);
         if (CollectionUtils.isEmpty(permissionList)) {
-            throw new IllegalArgumentException("No valid permissions found");
+            throw KitchenSinkException
+                    .builder(ApplicationErrorCode.PERMISSION_NOT_EXISTS)
+                    .build();
         }
         return permissionList;
     }

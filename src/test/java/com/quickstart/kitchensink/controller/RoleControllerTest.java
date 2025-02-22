@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quickstart.kitchensink.dto.request.role.RoleCreateRequest;
 import com.quickstart.kitchensink.dto.request.role.RolePermissionUpdateRequest;
 import com.quickstart.kitchensink.dto.response.RoleDTO;
+import com.quickstart.kitchensink.exception.ApplicationErrorCode;
 import com.quickstart.kitchensink.exception.GlobalExceptionHandler;
+import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.model.Permission;
 import com.quickstart.kitchensink.service.RoleService;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,7 +93,10 @@ class RoleControllerTest {
 
     @Test
     void getRole_ShouldReturn404_WhenRoleDoesNotExist() throws Exception {
-        when(roleService.getRole("99")).thenThrow(new RoleNotFoundException("Role not found"));
+        when(roleService.getRole("99")).thenThrow(KitchenSinkException
+                .builder(ApplicationErrorCode.ROLE_NOT_FOUND)
+                .referenceId("99")
+                .build());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/roles/99"))
                 .andExpect(status().isNotFound());
@@ -107,7 +112,10 @@ class RoleControllerTest {
 
     @Test
     void deleteRole_ShouldReturn404_WhenRoleDoesNotExist() throws Exception {
-        doThrow(new RoleNotFoundException("Role not found")).when(roleService).deleteRole("99");
+        doThrow(KitchenSinkException
+                .builder(ApplicationErrorCode.ROLE_NOT_FOUND)
+                .referenceId("99")
+                .build()).when(roleService).deleteRole("99");
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/roles/99"))
                 .andExpect(status().isNotFound());

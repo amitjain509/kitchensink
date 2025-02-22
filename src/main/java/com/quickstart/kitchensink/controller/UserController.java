@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.management.relation.RoleNotFoundException;
 import java.net.URI;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class UserController {
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('USER_EDIT', 'USER_PROFILE_EDIT')")
-    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserUpdateRequest userRequest) throws RoleNotFoundException {
+    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserUpdateRequest userRequest) {
         RoleDTO roleDTO = roleService.getRole(userRequest.getRoleId());
         UserDTO userDTO = userService.updateUser(userMapper.fromUpdateRequest(userRequest, roleDTO));
         return ResponseEntity.ok(userDTO);

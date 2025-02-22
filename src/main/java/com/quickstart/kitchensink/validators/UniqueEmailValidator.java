@@ -1,6 +1,7 @@
 package com.quickstart.kitchensink.validators;
 
-import com.quickstart.kitchensink.exception.EmailAlreadyExistsException;
+import com.quickstart.kitchensink.exception.ApplicationErrorCode;
+import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.service.UserService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -16,7 +17,10 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
         if (email != null && userService.isMemberExistByEmailId(email)) {
-            throw new EmailAlreadyExistsException(email); // Throw 409 Conflict
+            throw KitchenSinkException
+                    .builder(ApplicationErrorCode.USER_EMAIL_EXISTS)
+                    .referenceId(email)
+                    .build();
         }
         return true;
     }

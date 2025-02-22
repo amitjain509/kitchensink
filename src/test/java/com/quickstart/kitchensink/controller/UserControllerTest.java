@@ -105,7 +105,7 @@ class UserControllerTest {
 
     @Test
     void updateUser_ShouldReturn204_WhenRequestIsValid() throws Exception {
-        UserUpdateRequest request = new UserUpdateRequest("9945242509", "Test", "new@example.com", UserType.USER);
+        UserUpdateRequest request = new UserUpdateRequest("9945242509", "Test", "new@example.com", "", UserType.USER);
         doNothing().when(userService).updateUser(any());
 
         mockMvc.perform(MockMvcRequestBuilders.put("/users")

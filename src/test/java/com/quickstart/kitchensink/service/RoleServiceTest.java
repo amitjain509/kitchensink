@@ -1,6 +1,7 @@
 package com.quickstart.kitchensink.service;
 
 import com.quickstart.kitchensink.dto.response.RoleDTO;
+import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.model.Permission;
 import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
@@ -14,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
 
-import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +64,7 @@ class RoleServiceTest {
     }
 
     @Test
-    void deleteRole_ShouldDeleteRole_WhenRoleExists() throws RoleNotFoundException {
+    void deleteRole_ShouldDeleteRole_WhenRoleExists() {
         when(roleRepository.existsById("1")).thenReturn(true);
 
         roleService.deleteRole("1");
@@ -76,11 +76,11 @@ class RoleServiceTest {
     void deleteRole_ShouldThrowException_WhenRoleDoesNotExist() {
         when(roleRepository.existsById("1")).thenReturn(false);
 
-        assertThrows(RoleNotFoundException.class, () -> roleService.deleteRole("1"));
+        assertThrows(KitchenSinkException.class, () -> roleService.deleteRole("1"));
     }
 
     @Test
-    void getRole_ShouldReturnRole_WhenRoleExists() throws RoleNotFoundException {
+    void getRole_ShouldReturnRole_WhenRoleExists() {
         when(roleRepository.findById("1")).thenReturn(Optional.of(role));
         RoleDTO foundRole = roleService.getRole("1");
 
@@ -92,7 +92,7 @@ class RoleServiceTest {
     void getRole_ShouldThrowException_WhenRoleDoesNotExist() {
         when(roleRepository.findById("1")).thenReturn(Optional.empty());
 
-        assertThrows(RoleNotFoundException.class, () -> roleService.getRole("1"));
+        assertThrows(KitchenSinkException.class, () -> roleService.getRole("1"));
     }
 
     @Test
@@ -129,7 +129,7 @@ class RoleServiceTest {
     }
 
     @Test
-    void assignPermissionsToRole_ShouldAssignPermissions_WhenRoleExists() throws RoleNotFoundException {
+    void assignPermissionsToRole_ShouldAssignPermissions_WhenRoleExists() {
         List<String> permissionNames = List.of("USER_CREATE");
         List<Permission> permissions = List.of(new Permission("1", "USER_CREATE", "Can create users"));
         when(permissionService.validateAndGetPermissions(permissionNames)).thenReturn(permissions);
@@ -147,7 +147,7 @@ class RoleServiceTest {
         List<String> permissionNames = List.of("USER_CREATE");
         when(roleRepository.findById("1")).thenReturn(Optional.empty());
 
-        assertThrows(RoleNotFoundException.class, () -> roleService.assignPermissionsToRole("1", permissionNames));
+        assertThrows(KitchenSinkException.class, () -> roleService.assignPermissionsToRole("1", permissionNames));
     }
 
     @Test

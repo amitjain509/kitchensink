@@ -3,13 +3,13 @@ package com.quickstart.kitchensink.service;
 import com.quickstart.kitchensink.dto.PasswordDTO;
 import com.quickstart.kitchensink.dto.response.UserDTO;
 import com.quickstart.kitchensink.enums.UserType;
+import com.quickstart.kitchensink.exception.ApplicationErrorCode;
+import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.mapper.UserMapper;
 import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -65,7 +65,10 @@ public class UserService {
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User does not exists"));
+                .orElseThrow(() -> KitchenSinkException
+                        .builder(ApplicationErrorCode.USER_NOT_FOUND)
+                        .referenceId(email)
+                        .build());
     }
 
     public List<UserDTO> findAllUsersByUserType(UserType userType) {
@@ -94,7 +97,10 @@ public class UserService {
     @Transactional
     public void updatePassword(String email, PasswordDTO passwordDTO) {
         User user = userRepository.findByEmailAndPassword(email, passwordDTO.getOldPassword())
-                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("Invalid email or password"));
+                .orElseThrow(() -> KitchenSinkException
+                        .builder(ApplicationErrorCode.INVALID_CREDENTIALS)
+                        .referenceId(email)
+                        .build());
         user.updatePassword(passwordDTO.getNewPassword());
         userRepository.save(user);
     }
@@ -102,14 +108,20 @@ public class UserService {
     @Transactional
     public void assignRolesToUser(String userId, List<String> roles) {
         List<Role> roleList = roleService.validateAndGetRoles(roles);
-        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        User user = userRepository.findById(userId).orElseThrow(() -> KitchenSinkException
+                .builder(ApplicationErrorCode.USER_NOT_FOUND)
+                .referenceId(userId)
+                .build());
         user.updateRoles(roleList);
         userRepository.save(user);
     }
 
     public boolean isRoleAssociatedWithUser(String roleId) {
         if (!StringUtils.hasLength(roleId)) {
-            throw new IllegalArgumentException("RoleId cannot be empty");
+            throw KitchenSinkException
+                    .builder(ApplicationErrorCode.INVALID_ROLE)
+                    .referenceId(roleId)
+                    .build();
         }
         return userRepository.existsByRoles_Id(roleId);
     }
@@ -120,7 +132,10 @@ public class UserService {
 
     private void validateExistingUser(UserDTO userDTO) {
         if (userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+            throw KitchenSinkException
+                    .builder(ApplicationErrorCode.USER_EMAIL_EXISTS)
+                    .referenceId(userDTO.getEmail())
+                    .build();
         }
     }
 
