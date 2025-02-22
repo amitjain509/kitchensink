@@ -3,6 +3,8 @@ package com.quickstart.kitchensink.service;
 import com.quickstart.kitchensink.dto.PasswordDTO;
 import com.quickstart.kitchensink.dto.response.UserDTO;
 import com.quickstart.kitchensink.enums.UserType;
+import com.quickstart.kitchensink.exception.ApplicationErrorCode;
+import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.repository.UserRepository;
@@ -48,7 +50,7 @@ class UserServiceTest {
     void createUser_ShouldReturnUserDTO_WhenUserIsCreatedSuccessfully() {
         when(userRepository.existsByEmail(userDTO.getEmail())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(user);
-        UserDTO createdUser = userService.createUser(userDTO);
+        UserDTO createdUser = userService.createUser(userDTO, List.of());
 
         assertThat(createdUser).isNotNull();
         assertThat(createdUser.getEmail()).isEqualTo(userDTO.getEmail());
@@ -59,9 +61,9 @@ class UserServiceTest {
     void createUser_ShouldThrowException_WhenEmailAlreadyExists() {
         when(userRepository.existsByEmail(userDTO.getEmail())).thenReturn(true);
 
-        assertThatThrownBy(() -> userService.createUser(userDTO))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Email already exists");
+        assertThatThrownBy(() -> userService.createUser(userDTO, List.of()))
+                .isInstanceOf(KitchenSinkException.class)
+                .hasMessage(ApplicationErrorCode.USER_EMAIL_EXISTS.name());
 
         verify(userRepository, never()).save(any(User.class));
     }
@@ -80,8 +82,8 @@ class UserServiceTest {
         when(userRepository.findByEmail(userDTO.getEmail())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.updateUser(userDTO))
-                .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessage("User does not exists");
+                .isInstanceOf(KitchenSinkException.class)
+                .hasMessage(ApplicationErrorCode.USER_NOT_FOUND.name());
 
         verify(userRepository, never()).save(any(User.class));
     }
@@ -109,8 +111,8 @@ class UserServiceTest {
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.updatePassword(user.getEmail(), "newPassword"))
-                .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessage("User does not exists");
+                .isInstanceOf(KitchenSinkException.class)
+                .hasMessage(ApplicationErrorCode.USER_NOT_FOUND.name());
 
         verify(userRepository, never()).save(any(User.class));
     }
@@ -169,8 +171,8 @@ class UserServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.updatePassword(user.getEmail(), passwordDTO))
-                .isInstanceOf(AuthenticationCredentialsNotFoundException.class)
-                .hasMessage("Invalid email or password");
+                .isInstanceOf(KitchenSinkException.class)
+                .hasMessage(ApplicationErrorCode.INVALID_CREDENTIALS.name());
 
         verify(userRepository, never()).save(any(User.class));
     }
@@ -178,24 +180,22 @@ class UserServiceTest {
     @Test
     void assignRolesToUser_ShouldAssignRolesSuccessfully() {
         Role role = Role.of("ROLE_USER", "");
-        List<String> roleNames = List.of("ROLE_USER");
         List<Role> roles = List.of(role);
 
-        when(roleService.validateAndGetRoles(roleNames)).thenReturn(roles);
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
-        userService.assignRolesToUser(user.getEmail(), roleNames);
+        userService.assignRolesToUser(user.getEmail(), roles);
 
         verify(userRepository, times(1)).save(user);
     }
 
     @Test
     void assignRolesToUser_ShouldThrowException_WhenUserNotFound() {
-        List<String> roleNames = List.of("ROLE_USER");
+        Role role = Role.of("ROLE_USER", "");
 
-        assertThatThrownBy(() -> userService.assignRolesToUser(user.getEmail(), roleNames))
-                .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessage("User does not exist");
+        assertThatThrownBy(() -> userService.assignRolesToUser(user.getEmail(), List.of(role)))
+                .isInstanceOf(KitchenSinkException.class)
+                .hasMessage(ApplicationErrorCode.USER_NOT_FOUND.name());
 
         verify(userRepository, never()).save(any(User.class));
     }

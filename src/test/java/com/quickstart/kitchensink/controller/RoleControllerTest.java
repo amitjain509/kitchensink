@@ -1,6 +1,7 @@
 package com.quickstart.kitchensink.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.quickstart.kitchensink.application.RoleApplicationService;
 import com.quickstart.kitchensink.dto.request.role.RoleCreateRequest;
 import com.quickstart.kitchensink.dto.request.role.RolePermissionUpdateRequest;
 import com.quickstart.kitchensink.dto.response.RoleDTO;
@@ -34,7 +35,7 @@ class RoleControllerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
-    private RoleService roleService;
+    private RoleApplicationService roleApplicationService;
 
     @InjectMocks
     private RoleController roleController;
@@ -48,7 +49,7 @@ class RoleControllerTest {
 
     @Test
     void getRoles_ShouldReturnListOfRoles() throws Exception {
-        when(roleService.getAllRoles()).thenReturn(Collections.singletonList(getDummyRole()));
+        when(roleApplicationService.getAllRoles()).thenReturn(Collections.singletonList(getDummyRole()));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/roles"))
                 .andExpect(status().isOk())
@@ -60,7 +61,7 @@ class RoleControllerTest {
         RoleCreateRequest request = new RoleCreateRequest("ADMIN", "");
         RoleDTO response = getDummyRole();
 
-        when(roleService.createRole(any())).thenReturn(response);
+        when(roleApplicationService.createRole(any())).thenReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/roles")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -83,7 +84,7 @@ class RoleControllerTest {
     @Test
     void getRole_ShouldReturnRole_WhenRoleExists() throws Exception {
         RoleDTO roleDTO = getDummyRole();
-        when(roleService.getRole("1")).thenReturn(roleDTO);
+        when(roleApplicationService.getRole("1")).thenReturn(roleDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/roles/1"))
                 .andExpect(status().isOk())
@@ -93,7 +94,7 @@ class RoleControllerTest {
 
     @Test
     void getRole_ShouldReturn404_WhenRoleDoesNotExist() throws Exception {
-        when(roleService.getRole("99")).thenThrow(KitchenSinkException
+        when(roleApplicationService.getRole("99")).thenThrow(KitchenSinkException
                 .builder(ApplicationErrorCode.ROLE_NOT_FOUND)
                 .referenceId("99")
                 .build());
@@ -104,7 +105,7 @@ class RoleControllerTest {
 
     @Test
     void deleteRole_ShouldReturnAccepted_WhenRoleIsDeleted() throws Exception {
-        doNothing().when(roleService).deleteRole("1");
+        doNothing().when(roleApplicationService).deleteRole("1");
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/roles/1"))
                 .andExpect(status().isAccepted());
@@ -115,7 +116,7 @@ class RoleControllerTest {
         doThrow(KitchenSinkException
                 .builder(ApplicationErrorCode.ROLE_NOT_FOUND)
                 .referenceId("99")
-                .build()).when(roleService).deleteRole("99");
+                .build()).when(roleApplicationService).deleteRole("99");
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/roles/99"))
                 .andExpect(status().isNotFound());
@@ -126,7 +127,7 @@ class RoleControllerTest {
         RolePermissionUpdateRequest request = new RolePermissionUpdateRequest("1", Collections.singletonList("USER_CREATE"));
         RoleDTO response = RoleDTO.of("1", "ADMIN", "", Collections.singletonList(Permission.of("USER_CREATE", "")));
 
-        when(roleService.assignPermissionsToRole(eq("1"), any())).thenReturn(response);
+        when(roleApplicationService.assignPermissionsToRole(eq("1"), any())).thenReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/roles/1/assign-permissions")
                         .contentType(MediaType.APPLICATION_JSON)

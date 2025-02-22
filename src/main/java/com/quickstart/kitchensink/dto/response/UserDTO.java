@@ -21,4 +21,8 @@ public class UserDTO {
     private UserType userType;
     private List<RoleDTO> roles;
     private Set<String> permissions;
+
+    public void enrichWithRoles(List<RoleDTO> roles) {
+        this.roles = roles;
+    }
 }

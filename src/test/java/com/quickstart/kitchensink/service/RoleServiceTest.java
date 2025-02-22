@@ -60,7 +60,7 @@ class RoleServiceTest {
     void createRole_ShouldThrowException_WhenRoleAlreadyExists() {
         when(roleRepository.existsByName(roleDTO.getRoleName())).thenReturn(true);
 
-        assertThrows(DuplicateKeyException.class, () -> roleService.createRole(roleDTO));
+        assertThrows(KitchenSinkException.class, () -> roleService.createRole(roleDTO));
     }
 
     @Test
@@ -125,18 +125,16 @@ class RoleServiceTest {
     void getRoles_ShouldThrowException_WhenRoleDoesNotExist() {
         List<String> roleList = List.of("USER");
         when(roleRepository.findByNameIn(roleList)).thenReturn(List.of());
-        assertThrows(IllegalArgumentException.class, () -> roleService.validateAndGetRoles(roleList));
+        assertThrows(KitchenSinkException.class, () -> roleService.validateAndGetRoles(roleList));
     }
 
     @Test
     void assignPermissionsToRole_ShouldAssignPermissions_WhenRoleExists() {
-        List<String> permissionNames = List.of("USER_CREATE");
         List<Permission> permissions = List.of(new Permission("1", "USER_CREATE", "Can create users"));
-        when(permissionService.validateAndGetPermissions(permissionNames)).thenReturn(permissions);
         when(roleRepository.findById("1")).thenReturn(Optional.of(role));
         when(roleRepository.save(role)).thenReturn(role);
 
-        RoleDTO updatedRole = roleService.assignPermissionsToRole("1", permissionNames);
+        RoleDTO updatedRole = roleService.assignPermissionsToRole("1", permissions);
 
         assertNotNull(updatedRole);
         verify(roleRepository, times(1)).save(role);
@@ -144,29 +142,9 @@ class RoleServiceTest {
 
     @Test
     void assignPermissionsToRole_ShouldThrowException_WhenRoleDoesNotExist() {
-        List<String> permissionNames = List.of("USER_CREATE");
+        List<Permission> permissions = List.of(new Permission("1", "USER_CREATE", "Can create users"));
         when(roleRepository.findById("1")).thenReturn(Optional.empty());
 
-        assertThrows(KitchenSinkException.class, () -> roleService.assignPermissionsToRole("1", permissionNames));
-    }
-
-    @Test
-    void assignRoleToUser_ShouldAssignRole_WhenRoleExists() {
-        User user = mock(User.class);
-        when(roleRepository.findById("1")).thenReturn(Optional.of(role));
-
-        roleService.assignRoleToUser(user, "1");
-
-        verify(user, times(1)).updateRoles(List.of(role));
-    }
-
-    @Test
-    void assignRoleToUser_ShouldDoNothing_WhenRoleDoesNotExist() {
-        User user = mock(User.class);
-        when(roleRepository.findById("1")).thenReturn(Optional.empty());
-
-        roleService.assignRoleToUser(user, "1");
-
-        verify(user, never()).updateRoles(any());
+        assertThrows(KitchenSinkException.class, () -> roleService.assignPermissionsToRole("1", permissions));
     }
 }

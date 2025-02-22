@@ -6,7 +6,6 @@ import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.mapper.RoleMapper;
 import com.quickstart.kitchensink.model.Permission;
 import com.quickstart.kitchensink.model.Role;
-import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,13 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class RoleService {
     private final RoleRepository roleRepository;
-    private final PermissionService permissionService;
 
     @Transactional
     public RoleDTO createRole(RoleDTO roleDTO) {
@@ -56,6 +53,17 @@ public class RoleService {
         return RoleMapper.fromEntity(role);
     }
 
+    public List<Role> validateAndGetRolesByIds(List<String> roleIds) {
+        List<Role> roles = roleRepository.findAllById(roleIds);
+        if (CollectionUtils.isEmpty(roles)) {
+            throw KitchenSinkException
+                    .builder(ApplicationErrorCode.ROLES_NOT_FOUND)
+                    .addErrorInformation("roles", roleIds)
+                    .build();
+        }
+        return roles;
+    }
+
     public List<Role> validateAndGetRoles(List<String> roleNames) {
         List<Role> roles = roleRepository.findByNameIn(roleNames);
         if (CollectionUtils.isEmpty(roles)) {
@@ -82,25 +90,15 @@ public class RoleService {
         return roleRepository.existsById(roleId);
     }
 
-    public RoleDTO assignPermissionsToRole(String roleId, List<String> permissions) {
-        List<Permission> permissionList = permissionService.validateAndGetPermissions(permissions);
+    public RoleDTO assignPermissionsToRole(String roleId, List<Permission> permissions) {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> KitchenSinkException
                         .builder(ApplicationErrorCode.ROLE_NOT_FOUND)
                         .referenceId(roleId)
                         .build());
 
-        role.updatePermissions(permissionList);
+        role.updatePermissions(permissions);
         roleRepository.save(role);
         return RoleMapper.fromEntity(role);
-    }
-
-    @Transactional
-    public void assignRoleToUser(User user, String roleId) {
-        Optional<Role> role = roleRepository.findById(roleId);
-        if (role.isEmpty()) {
-            return;
-        }
-        user.updateRoles(List.of(role.get()));
     }
 }

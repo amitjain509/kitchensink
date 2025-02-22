@@ -1,5 +1,6 @@
 package com.quickstart.kitchensink.controller;
 
+import com.quickstart.kitchensink.application.AuthApplicationService;
 import com.quickstart.kitchensink.dto.request.AuthRequestDTO;
 import com.quickstart.kitchensink.dto.request.user.PasswordResetRequest;
 import com.quickstart.kitchensink.dto.response.AuthResponseDTO;
@@ -20,39 +21,23 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class AuthenticationController {
-    private final AuthenticationManager authenticationManager;
-    private final UserService userService;
-    private final JwtService jwtService;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthApplicationService authApplicationService;
 
     @PostMapping("/login")
     public AuthResponseDTO authenticate(@Valid @RequestBody AuthRequestDTO authRequestDTO) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getEmail(), authRequestDTO.getPassword()));
-
-        User user = userService.getUserByEmail(authRequestDTO.getEmail());
-        String token = jwtService.generateToken(user);
-
-        return AuthResponseDTO.from(user, token);
+        return authApplicationService.authenticate(authRequestDTO);
     }
 
     @PostMapping("/reset-password")
     @PreAuthorize("hasAnyAuthority('USER_RESET_PASSWORD')")
     public AuthResponseDTO authenticate(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                passwordResetRequest.getEmail(),
-                passwordResetRequest.getOldPassword()));
-
-        User user = userService.updatePassword(passwordResetRequest.getEmail(),
-                passwordEncoder.encode(passwordResetRequest.getNewPassword()));
-        String token = jwtService.generateToken(user);
-
-        return AuthResponseDTO.from(user, token);
+        return authApplicationService.authenticate(passwordResetRequest);
     }
 
     @PutMapping("/reset-password/{email}")
     @PreAuthorize("hasAnyAuthority('USER_RESET_PASSWORD')")
     public ResponseEntity<?> resetPassword(@NotBlank @PathVariable String email) {
-        userService.resetPassword(email);
+        authApplicationService.resetPassword(email);
         return ResponseEntity.accepted().build();
     }
 }

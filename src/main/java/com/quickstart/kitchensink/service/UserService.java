@@ -23,15 +23,13 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final RoleService roleService;
 
     @Transactional
-    public UserDTO createUser(UserDTO userDTO) {
+    public UserDTO createUser(UserDTO userDTO, List<Role> roles) {
         validateExistingUser(userDTO);
 
         User user = User.toEntity(userDTO);
-
-        roleService.assignRoleToUser(user, getRoleIdIfExists(userDTO));
+        user.updateRoles(roles);
         return UserMapper.fromEntity(userRepository.save(user));
     }
 
@@ -106,13 +104,12 @@ public class UserService {
     }
 
     @Transactional
-    public void assignRolesToUser(String userId, List<String> roles) {
-        List<Role> roleList = roleService.validateAndGetRoles(roles);
+    public void assignRolesToUser(String userId, List<Role> roles) {
         User user = userRepository.findById(userId).orElseThrow(() -> KitchenSinkException
                 .builder(ApplicationErrorCode.USER_NOT_FOUND)
                 .referenceId(userId)
                 .build());
-        user.updateRoles(roleList);
+        user.updateRoles(roles);
         userRepository.save(user);
     }
 
@@ -137,12 +134,5 @@ public class UserService {
                     .referenceId(userDTO.getEmail())
                     .build();
         }
-    }
-
-    private String getRoleIdIfExists(UserDTO userDTO) {
-        if (CollectionUtils.isEmpty(userDTO.getRoles())) {
-            return null;
-        }
-        return userDTO.getRoles().getFirst().getRoleId();
     }
 }

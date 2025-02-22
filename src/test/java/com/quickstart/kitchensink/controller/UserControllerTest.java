@@ -1,6 +1,7 @@
 package com.quickstart.kitchensink.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.quickstart.kitchensink.application.UserApplicationService;
 import com.quickstart.kitchensink.dto.request.user.UserCreateRequest;
 import com.quickstart.kitchensink.dto.request.user.UserUpdateRequest;
 import com.quickstart.kitchensink.dto.response.UserDTO;
@@ -35,6 +36,8 @@ class UserControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
+    private UserApplicationService userApplicationService;
+    @Mock
     private UserService userService;
     @Mock
     private UserMapper userMapper;
@@ -67,7 +70,7 @@ class UserControllerTest {
     @Disabled
     void createUser_ShouldReturn201_WhenRequestIsValid() throws Exception {
         UserCreateRequest request = new UserCreateRequest("test@example.com", "password", "9945242509", "1", UserType.USER);
-        when(userService.createUser(any())).thenReturn(userDTO);
+        when(userApplicationService.createUser(any())).thenReturn(userDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -80,7 +83,7 @@ class UserControllerTest {
     @Disabled
     void createUser_ShouldReturn400_WhenEmailIsInvalid() throws Exception {
         UserCreateRequest request = new UserCreateRequest("name", "", "9945242509", "1", UserType.USER);
-        when(userService.createUser(userMapper.fromCreateRequest(request))).thenReturn(userDTO);
+        when(userApplicationService.createUser(request)).thenReturn(userDTO);
         mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -89,7 +92,7 @@ class UserControllerTest {
 
     @Test
     void getUserByEmail_ShouldReturn404_WhenUserDoesNotExist() throws Exception {
-        when(userService.getUserByEmail(anyString())).thenThrow(new UsernameNotFoundException("User does not exists"));
+        when(userApplicationService.getUserByEmail(anyString())).thenThrow(new UsernameNotFoundException("User does not exists"));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/users/{email}", "unknown@example.com"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
@@ -97,7 +100,7 @@ class UserControllerTest {
 
     @Test
     void deleteUser_ShouldReturn202_WhenUserExists() throws Exception {
-        doNothing().when(userService).deleteUser(anyString());
+        doNothing().when(userApplicationService).deleteUser(anyString());
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/users/{userId}", "1"))
                 .andExpect(MockMvcResultMatchers.status().isAccepted());
@@ -105,18 +108,17 @@ class UserControllerTest {
 
     @Test
     void updateUser_ShouldReturn204_WhenRequestIsValid() throws Exception {
-        UserUpdateRequest request = new UserUpdateRequest("9945242509", "Test", "new@example.com", "", UserType.USER);
-        doNothing().when(userService).updateUser(any());
+        UserUpdateRequest request = new UserUpdateRequest("9945242509", "Test", "new@example.com", "1", UserType.USER);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
     void findAllUsers_ShouldReturnUsers_WhenUsersExist() throws Exception {
-        when(userService.findAllUsersByUserType(UserType.USER)).thenReturn(List.of(userDTO));
+        when(userApplicationService.findAllUsersByUserType(UserType.USER)).thenReturn(List.of(userDTO));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/users/userType/{userType}", UserType.USER))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -125,7 +127,7 @@ class UserControllerTest {
 
     @Test
     void findAllUsers_ShouldReturnEmptyList_WhenNoUsersExist() throws Exception {
-        when(userService.findAllUsersByUserType(UserType.ADMIN)).thenReturn(Collections.emptyList());
+        when(userApplicationService.findAllUsersByUserType(UserType.ADMIN)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/users/userType/{userType}", UserType.ADMIN))
                 .andExpect(MockMvcResultMatchers.status().isOk())

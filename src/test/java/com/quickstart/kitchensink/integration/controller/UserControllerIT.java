@@ -5,7 +5,9 @@ import com.quickstart.kitchensink.dto.request.user.UserCreateRequest;
 import com.quickstart.kitchensink.dto.request.user.UserUpdateRequest;
 import com.quickstart.kitchensink.enums.UserType;
 import com.quickstart.kitchensink.integration.AbstractBaseIntegrationTest;
+import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
+import com.quickstart.kitchensink.repository.RoleRepository;
 import com.quickstart.kitchensink.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,15 +39,20 @@ class UserControllerIT extends AbstractBaseIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
     String email = "john.doe@example.com";
     private static String userId;
+    private static String roleId;
 
     @Test
     @Order(1)
     void shouldCreateUser() throws Exception {
-        UserCreateRequest request = new UserCreateRequest("John Doe", email, "9945242509",
-                "password123", UserType.USER);
+        Role role = roleRepository.findByName("DEFAULT").get();
+        roleId = role.getId();
+        UserCreateRequest request = new UserCreateRequest("John Doe", email, "9945242509", role.getId(), UserType.USER);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -69,13 +76,13 @@ class UserControllerIT extends AbstractBaseIntegrationTest {
 
     @Test
     void shouldUpdateUser() throws Exception {
-        UserUpdateRequest updateRequest = new UserUpdateRequest("9988776655", "John Updated", email, "", UserType.USER);
+        UserUpdateRequest updateRequest = new UserUpdateRequest("9988776655", "John Updated", email, roleId, UserType.USER);
 
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + jwtToken)
                         .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
         Assertions.assertEquals(userRepository.findByEmail(email).get().getPhoneNumber(), "9988776655");
     }
 

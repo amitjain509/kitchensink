@@ -1,5 +1,6 @@
 package com.quickstart.kitchensink.service;
 
+import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.model.Permission;
 import com.quickstart.kitchensink.repository.PermissionRepository;
 import com.quickstart.kitchensink.dto.PermissionDTO;
@@ -90,7 +91,7 @@ class PermissionServiceTest {
         List<String> permissionNames = Arrays.asList("INVALID_PERMISSION");
         when(permissionRepository.findByNameIn(permissionNames)).thenReturn(List.of());
 
-        assertThrows(IllegalArgumentException.class, () -> 
+        assertThrows(KitchenSinkException.class, () ->
             permissionService.validateAndGetPermissions(permissionNames));
     }
 }

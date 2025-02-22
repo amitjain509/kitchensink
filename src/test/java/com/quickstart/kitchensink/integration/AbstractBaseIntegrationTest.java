@@ -41,6 +41,7 @@ public abstract class AbstractBaseIntegrationTest {
     private ObjectMapper objectMapper;
 
     protected static String jwtToken;
+    String defaultRoleId;
 
     static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0")
             .withExtraHost("localhost", "127.0.0.1").withExposedPorts(27017).withReuse(true);
@@ -64,6 +65,7 @@ public abstract class AbstractBaseIntegrationTest {
         String responseBody = result.getResponse().getContentAsString();
         AuthResponseDTO authResponse = objectMapper.readValue(responseBody, AuthResponseDTO.class);
         jwtToken = authResponse.getToken();
+
 
         assertThat(jwtToken).isNotBlank();
     }

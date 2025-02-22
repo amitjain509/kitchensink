@@ -68,6 +68,23 @@ public class UserMapper {
                 .build();
     }
 
+    public static UserDTO fromEntityWithoutRoles(User user) {
+        if (Objects.isNull(user)) {
+            return null;
+        }
+        return UserDTO.builder()
+                .userId(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .userType(user.getUserType())
+                .active(user.isActive())
+                .locked(user.isLocked())
+                .isPasswordResetRequired(user.isPasswordResetRequired())
+                .permissions(getPermissions(user.getRoles()))
+                .build();
+    }
+
     private static List<RoleDTO> toRole(List<Role> roleList) {
         if (CollectionUtils.isEmpty(roleList)) {
             return List.of();

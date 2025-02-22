@@ -1,8 +1,10 @@
 package com.quickstart.kitchensink.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.quickstart.kitchensink.application.AuthApplicationService;
 import com.quickstart.kitchensink.dto.request.AuthRequestDTO;
 import com.quickstart.kitchensink.dto.request.user.PasswordResetRequest;
+import com.quickstart.kitchensink.dto.response.AuthResponseDTO;
 import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.security.jwt.JwtService;
@@ -22,6 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -39,6 +42,9 @@ class AuthenticationControllerTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private AuthApplicationService authApplicationService;
 
     @Mock
     private AuthenticationManager authenticationManager;
@@ -62,8 +68,7 @@ class AuthenticationControllerTest {
         AuthRequestDTO request = new AuthRequestDTO("test@example.com", "password");
         String token = "mockToken";
 
-        when(userService.getUserByEmail(request.getEmail())).thenReturn(user);
-        when(jwtService.generateToken(user)).thenReturn(token);
+        when(authApplicationService.authenticate(any(AuthRequestDTO.class))).thenReturn(AuthResponseDTO.from(user, token));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                         .contentType(APPLICATION_JSON)
@@ -71,20 +76,14 @@ class AuthenticationControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(user.getEmail()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.token").value(token));
-
-        verify(userService).getUserByEmail(request.getEmail());
-        verify(jwtService).generateToken(user);
     }
 
     @Test
     void resetPassword_ShouldReturnAuthResponse_WhenOldPasswordIsValid() throws Exception {
         PasswordResetRequest request = new PasswordResetRequest("test@example.com", "oldPassword", "newPassword");
-        String encodedPassword = "encodedNewPassword";
         String token = "mockToken";
 
-        when(passwordEncoder.encode(request.getNewPassword())).thenReturn(encodedPassword);
-        when(userService.updatePassword(request.getEmail(), encodedPassword)).thenReturn(user);
-        when(jwtService.generateToken(user)).thenReturn(token);
+        when(authApplicationService.authenticate(any(PasswordResetRequest.class))).thenReturn(AuthResponseDTO.from(user, token));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/auth/reset-password")
                         .contentType(APPLICATION_JSON)
@@ -92,9 +91,6 @@ class AuthenticationControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(user.getEmail()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.token").value(token));
-
-        verify(userService).updatePassword(request.getEmail(), encodedPassword);
-        verify(jwtService).generateToken(user);
     }
 
     @Test
