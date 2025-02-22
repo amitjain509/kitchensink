@@ -10,9 +10,10 @@ import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -25,10 +26,12 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserDTO createUser(UserDTO userDTO, List<Role> roles) {
+    public UserDTO createUser(UserDTO userDTO,
+                              List<Role> roles,
+                              String defaultPassword) {
         validateExistingUser(userDTO);
 
-        User user = User.toEntity(userDTO);
+        User user = User.toEntity(userDTO, defaultPassword);
         user.updateRoles(roles);
         return UserMapper.fromEntity(userRepository.save(user));
     }

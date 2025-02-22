@@ -86,12 +86,12 @@ public class User implements UserDetails {
         return active;
     }
 
-    public static User toEntity(UserDTO userDTO) {
+    public static User toEntity(UserDTO userDTO, String password) {
         return User.builder()
                 .name(userDTO.getName())
                 .email(userDTO.getEmail())
                 .phoneNumber(userDTO.getPhoneNumber())
-                .password(userDTO.getPassword())
+                .password(password)
                 .active(true)
                 .locked(false)
                 .isPasswordResetRequired(true)

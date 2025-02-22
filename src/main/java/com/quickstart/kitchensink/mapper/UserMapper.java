@@ -9,9 +9,6 @@ import com.quickstart.kitchensink.model.Permission;
 import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -20,26 +17,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component
 @RequiredArgsConstructor
 public class UserMapper {
-    private final PasswordEncoder passwordEncoder;
 
-    @Value("${default.password}")
-    private String defaultPassword;
-
-    public UserDTO fromCreateRequest(UserCreateRequest request) {
+    public static UserDTO fromCreateRequest(UserCreateRequest request) {
         return UserDTO.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
-                .password(passwordEncoder.encode(defaultPassword))
                 .userType(request.getUserType())
                 .roles(List.of(BasicRoleDTO.of(request.getRoleId(), null, null)))
                 .build();
     }
 
-    public UserDTO fromUpdateRequest(UserUpdateRequest request, RoleDTO roleDTO) {
+    public static UserDTO fromUpdateRequest(UserUpdateRequest request, RoleDTO roleDTO) {
         return UserDTO.builder()
                 .roles(List.of(roleDTO))
                 .name(request.getName())

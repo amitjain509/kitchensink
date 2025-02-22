@@ -13,6 +13,8 @@ import com.quickstart.kitchensink.service.RoleService;
 import com.quickstart.kitchensink.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -26,20 +28,25 @@ import java.util.stream.Collectors;
 public class UserApplicationService {
     private final UserService userService;
     private final RoleService roleService;
-    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+
+    @Value("${default.password}")
+    private String defaultPassword;
 
     @Transactional
     public UserDTO createUser(UserCreateRequest request) {
-        UserDTO userDTO = userMapper.fromCreateRequest(request);
+        UserDTO userDTO = UserMapper.fromCreateRequest(request);
         List<String> roleIds = getRoleIdsIfExists(userDTO);
         List<Role> roles = roleService.validateAndGetRolesByIds(roleIds);
-        return userService.createUser(userDTO, roles);
+
+        String defaultPasswordHash = passwordEncoder.encode(defaultPassword);
+        return userService.createUser(userDTO, roles, defaultPasswordHash);
     }
 
     @Transactional
     public UserDTO updateUser(UserUpdateRequest userRequest) {
         RoleDTO roleDTO = roleService.getRole(userRequest.getRoleId());
-        UserDTO userCreateDTO = userMapper.fromUpdateRequest(userRequest, roleDTO);
+        UserDTO userCreateDTO = UserMapper.fromUpdateRequest(userRequest, roleDTO);
         return userService.updateUser(userCreateDTO);
     }
 

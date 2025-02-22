@@ -64,7 +64,7 @@ class DataSeederTest {
     void testDataSeeder_whenDataExists() {
         when(permissionRepository.count()).thenReturn(1L);
         when(roleRepository.count()).thenReturn(1L);
-        when(userRepository.findByEmail(null)).thenReturn(Optional.of(User.toEntity(UserDTO.builder().email("").build())));
+        when(userRepository.findByEmail(null)).thenReturn(Optional.of(User.toEntity(UserDTO.builder().email("").build(), "")));
         when(roleRepository.findByName("ADMIN")).thenReturn(Optional.of(Role.of("ADMIN", "Administrator role", List.of())));
 
         dataSeeder.run();

@@ -14,7 +14,6 @@ public class UserDTO {
     private String name;
     private String email;
     private String phoneNumber;
-    private String password;
     private boolean active;
     private boolean locked;
     private boolean isPasswordResetRequired;

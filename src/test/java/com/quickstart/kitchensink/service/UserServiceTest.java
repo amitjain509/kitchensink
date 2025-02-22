@@ -43,14 +43,14 @@ class UserServiceTest {
     void setUp() {
         userDTO = UserDTO.builder().userId("1").email("test@example.com").userType(UserType.USER)
                 .phoneNumber("9876543210").build();
-        user = User.toEntity(userDTO);
+        user = User.toEntity(userDTO, "");
     }
 
     @Test
     void createUser_ShouldReturnUserDTO_WhenUserIsCreatedSuccessfully() {
         when(userRepository.existsByEmail(userDTO.getEmail())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(user);
-        UserDTO createdUser = userService.createUser(userDTO, List.of());
+        UserDTO createdUser = userService.createUser(userDTO, List.of(), "");
 
         assertThat(createdUser).isNotNull();
         assertThat(createdUser.getEmail()).isEqualTo(userDTO.getEmail());
@@ -61,7 +61,7 @@ class UserServiceTest {
     void createUser_ShouldThrowException_WhenEmailAlreadyExists() {
         when(userRepository.existsByEmail(userDTO.getEmail())).thenReturn(true);
 
-        assertThatThrownBy(() -> userService.createUser(userDTO, List.of()))
+        assertThatThrownBy(() -> userService.createUser(userDTO, List.of(), ""))
                 .isInstanceOf(KitchenSinkException.class)
                 .hasMessage(ApplicationErrorCode.USER_EMAIL_EXISTS.name());
 
