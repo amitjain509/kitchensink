@@ -19,10 +19,6 @@ public class UserDTO {
     private boolean locked;
     private boolean isPasswordResetRequired;
     private UserType userType;
-    private List<RoleDTO> roles;
+    private List<BasicRoleDTO> roles;
     private Set<String> permissions;
-
-    public void enrichWithRoles(List<RoleDTO> roles) {
-        this.roles = roles;
-    }
 }

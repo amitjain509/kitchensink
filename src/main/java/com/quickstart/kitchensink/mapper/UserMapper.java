@@ -1,9 +1,8 @@
 package com.quickstart.kitchensink.mapper;
 
-import com.quickstart.kitchensink.dto.PasswordDTO;
-import com.quickstart.kitchensink.dto.request.user.PasswordResetRequest;
 import com.quickstart.kitchensink.dto.request.user.UserCreateRequest;
 import com.quickstart.kitchensink.dto.request.user.UserUpdateRequest;
+import com.quickstart.kitchensink.dto.response.BasicRoleDTO;
 import com.quickstart.kitchensink.dto.response.RoleDTO;
 import com.quickstart.kitchensink.dto.response.UserDTO;
 import com.quickstart.kitchensink.model.Permission;
@@ -36,7 +35,7 @@ public class UserMapper {
                 .phoneNumber(request.getPhoneNumber())
                 .password(passwordEncoder.encode(defaultPassword))
                 .userType(request.getUserType())
-                .roles(List.of(RoleDTO.of(request.getRoleId(), null, null)))
+                .roles(List.of(BasicRoleDTO.of(request.getRoleId(), null, null)))
                 .build();
     }
 
@@ -68,29 +67,12 @@ public class UserMapper {
                 .build();
     }
 
-    public static UserDTO fromEntityWithoutRoles(User user) {
-        if (Objects.isNull(user)) {
-            return null;
-        }
-        return UserDTO.builder()
-                .userId(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .userType(user.getUserType())
-                .active(user.isActive())
-                .locked(user.isLocked())
-                .isPasswordResetRequired(user.isPasswordResetRequired())
-                .permissions(getPermissions(user.getRoles()))
-                .build();
-    }
-
-    private static List<RoleDTO> toRole(List<Role> roleList) {
+    private static List<BasicRoleDTO> toRole(List<Role> roleList) {
         if (CollectionUtils.isEmpty(roleList)) {
             return List.of();
         }
         return Optional.of(roleList.stream()
-                .map(RoleMapper::fromEntityWithoutPermission)
+                .map(RoleMapper::fromEntityToBasicDTO)
                 .collect(Collectors.toList())).orElse(List.of());
     }
 

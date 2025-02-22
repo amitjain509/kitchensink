@@ -1,5 +1,6 @@
 package com.quickstart.kitchensink.service;
 
+import com.quickstart.kitchensink.dto.response.BasicRoleDTO;
 import com.quickstart.kitchensink.dto.response.RoleDTO;
 import com.quickstart.kitchensink.exception.ApplicationErrorCode;
 import com.quickstart.kitchensink.exception.KitchenSinkException;
@@ -20,7 +21,7 @@ public class RoleService {
     private final RoleRepository roleRepository;
 
     @Transactional
-    public RoleDTO createRole(RoleDTO roleDTO) {
+    public BasicRoleDTO createRole(BasicRoleDTO roleDTO) {
         if (isRoleExists(roleDTO.getRoleName())) {
             throw KitchenSinkException
                     .builder(ApplicationErrorCode.DUPLICATE_ROLE)
@@ -29,7 +30,7 @@ public class RoleService {
         }
         Role role = Role.of(roleDTO.getRoleName(), roleDTO.getRoleDescription());
         role = roleRepository.save(role);
-        return RoleMapper.fromEntity(role);
+        return RoleMapper.fromEntityToBasicDTO(role);
     }
 
     @Transactional
@@ -75,10 +76,10 @@ public class RoleService {
         return roles;
     }
 
-    public List<RoleDTO> getAllRoles() {
+    public List<BasicRoleDTO> getAllRoles() {
         return roleRepository.findAll()
                 .stream().filter(r -> !r.getName().equals("ADMIN"))
-                .map(RoleMapper::fromEntityWithoutPermission)
+                .map(RoleMapper::fromEntityToBasicDTO)
                 .toList();
     }
 

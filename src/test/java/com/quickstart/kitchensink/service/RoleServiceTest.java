@@ -1,10 +1,10 @@
 package com.quickstart.kitchensink.service;
 
+import com.quickstart.kitchensink.dto.response.BasicRoleDTO;
 import com.quickstart.kitchensink.dto.response.RoleDTO;
 import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.model.Permission;
 import com.quickstart.kitchensink.model.Role;
-import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.repository.RoleRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DuplicateKeyException;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,13 +34,13 @@ class RoleServiceTest {
 
     private Role role;
     private Role adminRole;
-    private RoleDTO roleDTO;
+    private BasicRoleDTO roleDTO;
 
     @BeforeEach
     void setUp() {
         role = Role.of("USER", "User role");
         adminRole = Role.of("ADMIN", "ADMIN role");
-        roleDTO = RoleDTO.of("USER", "User role");
+        roleDTO = BasicRoleDTO.of("USER", "User role");
     }
 
     @Test
@@ -49,7 +48,7 @@ class RoleServiceTest {
         when(roleRepository.existsByName(roleDTO.getRoleName())).thenReturn(false);
         when(roleRepository.save(any(Role.class))).thenReturn(role);
 
-        RoleDTO createdRole = roleService.createRole(roleDTO);
+        BasicRoleDTO createdRole = roleService.createRole(roleDTO);
 
         assertNotNull(createdRole);
         assertEquals(roleDTO.getRoleName(), createdRole.getRoleName());
@@ -98,7 +97,7 @@ class RoleServiceTest {
     @Test
     void getAllRoles_ShouldReturnRoles_WithoutAdmin() {
         when(roleRepository.findAll()).thenReturn(List.of(role, adminRole));
-        List<RoleDTO> roleDTOS = roleService.getAllRoles();
+        List<BasicRoleDTO> roleDTOS = roleService.getAllRoles();
 
         Assertions.assertEquals(roleDTOS.size(), 1);
         Assertions.assertEquals(roleDTOS.get(0).getRoleName(), "USER");
@@ -107,7 +106,7 @@ class RoleServiceTest {
     @Test
     void getAllRoles_ShouldReturnNoRole_WithoutAdmin() {
         when(roleRepository.findAll()).thenReturn(List.of(adminRole));
-        List<RoleDTO> roleDTOS = roleService.getAllRoles();
+        List<BasicRoleDTO> roleDTOS = roleService.getAllRoles();
 
         Assertions.assertEquals(roleDTOS.size(), 0);
     }

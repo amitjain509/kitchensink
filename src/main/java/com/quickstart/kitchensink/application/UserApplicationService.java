@@ -2,6 +2,7 @@ package com.quickstart.kitchensink.application;
 
 import com.quickstart.kitchensink.dto.request.user.UserCreateRequest;
 import com.quickstart.kitchensink.dto.request.user.UserUpdateRequest;
+import com.quickstart.kitchensink.dto.response.BasicRoleDTO;
 import com.quickstart.kitchensink.dto.response.RoleDTO;
 import com.quickstart.kitchensink.dto.response.UserDTO;
 import com.quickstart.kitchensink.enums.UserType;
@@ -77,7 +78,7 @@ public class UserApplicationService {
             return List.of();
         }
         return userDTO.getRoles().stream()
-                .map(RoleDTO::getRoleId)
+                .map(BasicRoleDTO::getRoleId)
                 .collect(Collectors.toList());
     }
 }

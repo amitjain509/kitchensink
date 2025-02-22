@@ -3,6 +3,7 @@ package com.quickstart.kitchensink.controller;
 import com.quickstart.kitchensink.application.RoleApplicationService;
 import com.quickstart.kitchensink.dto.request.role.RoleCreateRequest;
 import com.quickstart.kitchensink.dto.request.role.RolePermissionUpdateRequest;
+import com.quickstart.kitchensink.dto.response.BasicRoleDTO;
 import com.quickstart.kitchensink.dto.response.RoleDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -28,7 +29,7 @@ public class RoleController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ROLE_CREATE')")
     public ResponseEntity<?> createRole(@Valid @RequestBody RoleCreateRequest request) {
-        RoleDTO roleDTO = roleApplicationService.createRole(request);
+        BasicRoleDTO roleDTO = roleApplicationService.createRole(request);
         return ResponseEntity
                 .created(URI.create("/api/roles/" + roleDTO.getRoleId()))
                 .body(roleDTO);

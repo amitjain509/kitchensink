@@ -2,6 +2,7 @@ package com.quickstart.kitchensink.application;
 
 import com.quickstart.kitchensink.dto.request.role.RoleCreateRequest;
 import com.quickstart.kitchensink.dto.request.role.RolePermissionUpdateRequest;
+import com.quickstart.kitchensink.dto.response.BasicRoleDTO;
 import com.quickstart.kitchensink.dto.response.RoleDTO;
 import com.quickstart.kitchensink.exception.ApplicationErrorCode;
 import com.quickstart.kitchensink.exception.KitchenSinkException;
@@ -25,13 +26,13 @@ public class RoleApplicationService {
     private final UserService userService;
     private final PermissionService permissionService;
 
-    public List<RoleDTO> getAllRoles() {
+    public List<BasicRoleDTO> getAllRoles() {
         return roleService.getAllRoles();
     }
 
     @Transactional
-    public RoleDTO createRole(RoleCreateRequest request) {
-        RoleDTO roleDTO = RoleMapper.fromRoleCreateRequest(request);
+    public BasicRoleDTO createRole(RoleCreateRequest request) {
+        BasicRoleDTO roleDTO = RoleMapper.fromRoleCreateRequest(request);
         return roleService.createRole(roleDTO);
     }
 
