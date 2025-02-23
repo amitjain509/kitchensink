@@ -32,6 +32,8 @@ public class AdminUserSeeder {
         if (existingAdmin.isEmpty() && role.isPresent()) {
             User adminUser = User.builder()
                     .email(adminEmail)
+                    .name("Admin User")
+                    .phoneNumber("9945242509")
                     .password(passwordEncoder.encode(adminPassword))
                     .roles(List.of(role.get()))
                     .active(true)

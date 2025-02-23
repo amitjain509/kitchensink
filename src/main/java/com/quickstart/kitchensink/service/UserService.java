@@ -10,8 +10,6 @@ import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -57,11 +55,10 @@ public class UserService {
     }
 
     @Transactional
-    public User resetPassword(String email) {
+    public void resetPassword(String email, String defaultPassword) {
         User user = getUserByEmail(email);
-        user.resetPassword();
+        user.resetPassword(defaultPassword);
         userRepository.save(user);
-        return user;
     }
 
     public User getUserByEmail(String email) {
@@ -130,6 +127,16 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    public void validateExistingPhoneNumber(String phoneNumber, String email) {
+        if (!userRepository.existsByPhoneNumberAndEmailNot(phoneNumber, email)) {
+            return;
+        }
+        throw KitchenSinkException
+                .builder(ApplicationErrorCode.USER_PHONE_EXISTS)
+                .referenceId(phoneNumber)
+                .build();
+    }
+
     private void validateExistingUser(UserDTO userDTO) {
         if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw KitchenSinkException
@@ -137,5 +144,6 @@ public class UserService {
                     .referenceId(userDTO.getEmail())
                     .build();
         }
+        validateExistingPhoneNumber(userDTO.getPhoneNumber(), userDTO.getEmail());
     }
 }

@@ -16,6 +16,7 @@ public enum ApplicationErrorCode {
 
     USER_NOT_FOUND(3001, "User does not exists", HttpStatus.NOT_FOUND),
     USER_EMAIL_EXISTS(3002, "Email already in use", HttpStatus.CONFLICT),
+    USER_PHONE_EXISTS(3003, "Phone number already associated with a user", HttpStatus.CONFLICT),
     INVALID_CREDENTIALS(4001, "Invalid email or password", HttpStatus.UNAUTHORIZED),
     ;
 

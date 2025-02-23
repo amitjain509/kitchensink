@@ -33,6 +33,7 @@ public class User implements UserDetails {
     @Indexed(unique = true)
     private String email;
 
+    @Indexed(unique = true)
     private String phoneNumber;
 
     private String password;
@@ -122,8 +123,9 @@ public class User implements UserDetails {
         this.active = true;
     }
 
-    public void resetPassword() {
+    public void resetPassword(String defaultPassword) {
         this.isPasswordResetRequired = true;
+        this.password = defaultPassword;
     }
 
     public void updateRoles(List<Role> roles) {

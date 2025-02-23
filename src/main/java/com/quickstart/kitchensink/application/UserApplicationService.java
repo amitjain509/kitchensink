@@ -45,6 +45,7 @@ public class UserApplicationService {
 
     @Transactional
     public UserDTO updateUser(UserUpdateRequest userRequest) {
+        userService.validateExistingPhoneNumber(userRequest.getPhoneNumber(), userRequest.getEmail());
         RoleDTO roleDTO = roleService.getRole(userRequest.getRoleId());
         UserDTO userCreateDTO = UserMapper.fromUpdateRequest(userRequest, roleDTO);
         return userService.updateUser(userCreateDTO);
