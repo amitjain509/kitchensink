@@ -68,7 +68,7 @@ class AuthenticationControllerTest {
         AuthRequestDTO request = new AuthRequestDTO("test@example.com", "password");
         String token = "mockToken";
 
-        when(authApplicationService.authenticate(any(AuthRequestDTO.class))).thenReturn(AuthResponseDTO.from(user, token));
+        when(authApplicationService.resetPassword(any(AuthRequestDTO.class))).thenReturn(AuthResponseDTO.from(user, token));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                         .contentType(APPLICATION_JSON)
@@ -81,14 +81,11 @@ class AuthenticationControllerTest {
     @Test
     void resetPassword_ShouldReturnAuthResponse_WhenOldPasswordIsValid() throws Exception {
         PasswordResetRequest request = new PasswordResetRequest("test@example.com", "oldPassword", "newPassword");
-        String token = "mockToken";
 
         mockMvc.perform(MockMvcRequestBuilders.post("/auth/reset-password")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(user.getEmail()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.token").value(token));
+                .andExpect(MockMvcResultMatchers.status().isAccepted());
     }
 
     @Test

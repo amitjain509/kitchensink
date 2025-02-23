@@ -11,12 +11,6 @@ server:
   servlet:
     context-path: /api
 
-logging:
-  level:
-    org:
-      springframework:
-        security: DEBUG
-
 default:
   password: demo@123
 admin:
@@ -30,5 +24,16 @@ management:
 
 security:
   jwt:
-    secret-key: 3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b
+    secret-key: ${SECRET_KEY}
     expiration-time: 3600000
+
+
+# Log Level Configuration
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    com.kitchensink: DEBUG
+
+  # File Logging Configuration
+  file.name: logs/application.log

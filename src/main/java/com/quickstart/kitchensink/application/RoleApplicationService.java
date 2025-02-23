@@ -32,8 +32,13 @@ public class RoleApplicationService {
 
     @Transactional
     public BasicRoleDTO createRole(RoleCreateRequest request) {
+        log.info(">>>[RoleApplicationService::createRole] creating role : {}", request.getRoleName());
+
         BasicRoleDTO roleDTO = RoleMapper.fromRoleCreateRequest(request);
-        return roleService.createRole(roleDTO);
+        BasicRoleDTO basicRoleDTO = roleService.createRole(roleDTO);
+
+        log.info("<<<[RoleApplicationService::createRole] role created : {}", request.getRoleName());
+        return basicRoleDTO;
     }
 
     public RoleDTO getRole(String roleId) {
@@ -42,18 +47,29 @@ public class RoleApplicationService {
 
     @Transactional
     public void deleteRole(String roleId) {
+        log.info(">>>[RoleApplicationService::deleteRole] deleting role : {}", roleId);
+
         if (userService.isRoleAssociatedWithUser(roleId)) {
+            log.info("<<<[RoleApplicationService::deleteRole] role {} already exists", roleId);
             throw KitchenSinkException
                     .builder(ApplicationErrorCode.ROLE_ASSOCIATED)
                     .referenceId(roleId)
                     .build();
         }
         roleService.deleteRole(roleId);
+        log.info("<<<[RoleApplicationService::deleteRole] role {} deleted", roleId);
     }
 
     @Transactional
     public RoleDTO assignPermissionsToRole(String roleId, RolePermissionUpdateRequest request) {
+        log.info(">>>[RoleApplicationService::assignPermissionsToRole] assigning permissions {} to role : {}",
+                request.getPermissions(), roleId);
+
         List<Permission> permissionList = permissionService.validateAndGetPermissions(request.getPermissions());
-        return roleService.assignPermissionsToRole(roleId, permissionList);
+        RoleDTO roleDTO = roleService.assignPermissionsToRole(roleId, permissionList);
+
+        log.info("<<<[RoleApplicationService::assignPermissionsToRole] permissions {} linked to role : {} successfully",
+                request.getPermissions(), roleId);
+        return roleDTO;
     }
 }

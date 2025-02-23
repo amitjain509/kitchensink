@@ -30,12 +30,18 @@ public class AuthApplicationService {
     private String defaultPassword;
 
     @Transactional
-    public AuthResponseDTO authenticate(AuthRequestDTO authRequestDTO) {
+    public AuthResponseDTO resetPassword(AuthRequestDTO authRequestDTO) {
+        log.info(">>>[AuthApplicationService::authenticate] authenticating user : {}", authRequestDTO.getEmail());
+
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getEmail(), authRequestDTO.getPassword()));
 
         try {
+            log.info("[AuthApplicationService::authenticate] authenticated user : {}", authRequestDTO.getEmail());
             User user = userService.getUserByEmail(authRequestDTO.getEmail());
             String token = jwtService.generateToken(user);
+
+            log.info("<<<[AuthApplicationService::authenticate] exited");
+
             return AuthResponseDTO.from(user, token);
         } catch (KitchenSinkException e) {
             throw KitchenSinkException
@@ -46,18 +52,27 @@ public class AuthApplicationService {
     }
 
     @Transactional
-    public void authenticate(PasswordResetRequest passwordResetRequest) {
+    public void resetPassword(PasswordResetRequest passwordResetRequest) {
+        log.info(">>>[AuthApplicationService::resetPassword] received password reset request for user : {}",
+                passwordResetRequest.getEmail());
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 passwordResetRequest.getEmail(),
                 passwordResetRequest.getOldPassword()));
 
         userService.updatePassword(passwordResetRequest.getEmail(),
                 passwordEncoder.encode(passwordResetRequest.getNewPassword()));
+
+        log.info("<<<[AuthApplicationService::resetPassword] password reset done successfully for user : {}",
+                passwordResetRequest.getEmail());
     }
 
     @Transactional
     public void resetPassword(String email) {
+        log.info(">>>[AuthApplicationService::resetPassword] resetting default password for user : {}", email);
+
         String defaultPasswordHash = passwordEncoder.encode(defaultPassword);
         userService.resetPassword(email, defaultPasswordHash);
+
+        log.info("<<<[AuthApplicationService::resetPassword] default password rest done for user : {}", email);
     }
 }

@@ -35,25 +35,44 @@ public class UserApplicationService {
 
     @Transactional
     public UserDTO createUser(UserCreateRequest request) {
+        log.info(">>>[UserApplicationService::createUser] creating user with email : {}", request.getEmail());
+
         UserDTO userDTO = UserMapper.fromCreateRequest(request);
         List<String> roleIds = getRoleIdsIfExists(userDTO);
         List<Role> roles = roleService.validateAndGetRolesByIds(roleIds);
 
         String defaultPasswordHash = passwordEncoder.encode(defaultPassword);
-        return userService.createUser(userDTO, roles, defaultPasswordHash);
+        UserDTO createdUserDTO = userService.createUser(userDTO, roles, defaultPasswordHash);
+
+        log.info(">>>[UserApplicationService::createUser] created user with email : {}", request.getEmail());
+
+        return createdUserDTO;
     }
 
     @Transactional
     public UserDTO updateUser(UserUpdateRequest userRequest) {
+        log.info(">>>[UserApplicationService::updateUser] received user update request for user with email : {}", userRequest.getEmail());
+
         userService.validateExistingPhoneNumber(userRequest.getPhoneNumber(), userRequest.getEmail());
+        log.info("[UserApplicationService::updateUser] validated user details : {}", userRequest.getEmail());
+
         RoleDTO roleDTO = roleService.getRole(userRequest.getRoleId());
         UserDTO userCreateDTO = UserMapper.fromUpdateRequest(userRequest, roleDTO);
-        return userService.updateUser(userCreateDTO);
+
+        UserDTO userUpdatedDTO = userService.updateUser(userCreateDTO);
+
+        log.info("<<<[UserApplicationService::updateUser] user details updated successfully for  : {}", userRequest.getEmail());
+
+        return userUpdatedDTO;
     }
 
     @Transactional
     public void deleteUser(String userId) {
+        log.info(">>>[UserApplicationService::deleteUser] deleting user : {}", userId);
+
         userService.deleteUser(userId);
+
+        log.info("<<<[UserApplicationService::deleteUser] user deleted : {}", userId);
     }
 
     public UserDTO getUserByEmail(String email) {
@@ -67,18 +86,32 @@ public class UserApplicationService {
 
     @Transactional
     public void lockUser(String userId) {
+        log.info(">>>[UserApplicationService::lockUser] locking user : {}", userId);
+
         userService.lockUser(userId);
+
+        log.info("<<<[UserApplicationService::lockUser] user locked : {}", userId);
     }
 
     @Transactional
     public void unlockUser(String userId) {
+        log.info(">>>[UserApplicationService::lockUser] unlocking user : {}", userId);
+
         userService.unlockUser(userId);
+
+        log.info(">>>[UserApplicationService::lockUser] user unlocked : {}", userId);
     }
 
     @Transactional
     public void assignRolesToUser(String userId, List<String> roles) {
+        log.info(">>>[UserApplicationService::assignRolesToUser] assigning roles {} to user : {}", roles, userId);
+
         List<Role> roleList = roleService.validateAndGetRoles(roles);
+
+        log.info("[UserApplicationService::assignRolesToUser] validated roles");
         userService.assignRolesToUser(userId, roleList);
+
+        log.info("<<<[UserApplicationService::assignRolesToUser] roles {} assigned to user : {}", roles, userId);
     }
 
     private List<String> getRoleIdsIfExists(UserDTO userDTO) {

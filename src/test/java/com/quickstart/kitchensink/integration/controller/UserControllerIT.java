@@ -52,7 +52,7 @@ class UserControllerIT extends AbstractBaseIntegrationTest {
     void shouldCreateUser() throws Exception {
         Role role = roleRepository.findByName("DEFAULT").get();
         roleId = role.getId();
-        UserCreateRequest request = new UserCreateRequest("John Doe", email, "9945242509", role.getId(), UserType.USER);
+        UserCreateRequest request = new UserCreateRequest("John Doe", email, "9945242508", role.getId(), UserType.USER);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
