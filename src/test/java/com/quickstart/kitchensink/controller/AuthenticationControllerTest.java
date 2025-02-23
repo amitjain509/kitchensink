@@ -83,8 +83,6 @@ class AuthenticationControllerTest {
         PasswordResetRequest request = new PasswordResetRequest("test@example.com", "oldPassword", "newPassword");
         String token = "mockToken";
 
-        when(authApplicationService.authenticate(any(PasswordResetRequest.class))).thenReturn(AuthResponseDTO.from(user, token));
-
         mockMvc.perform(MockMvcRequestBuilders.post("/auth/reset-password")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

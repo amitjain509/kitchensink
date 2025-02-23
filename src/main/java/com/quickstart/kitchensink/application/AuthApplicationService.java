@@ -46,16 +46,13 @@ public class AuthApplicationService {
     }
 
     @Transactional
-    public AuthResponseDTO authenticate(PasswordResetRequest passwordResetRequest) {
+    public void authenticate(PasswordResetRequest passwordResetRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 passwordResetRequest.getEmail(),
                 passwordResetRequest.getOldPassword()));
 
-        User user = userService.updatePassword(passwordResetRequest.getEmail(),
+        userService.updatePassword(passwordResetRequest.getEmail(),
                 passwordEncoder.encode(passwordResetRequest.getNewPassword()));
-        String token = jwtService.generateToken(user);
-
-        return AuthResponseDTO.from(user, token);
     }
 
     @Transactional

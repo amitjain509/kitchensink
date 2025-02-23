@@ -30,8 +30,9 @@ public class AuthenticationController {
 
     @PostMapping("/reset-password")
     @PreAuthorize("hasAnyAuthority('USER_RESET_PASSWORD')")
-    public AuthResponseDTO authenticate(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
-        return authApplicationService.authenticate(passwordResetRequest);
+    public ResponseEntity<?> authenticate(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
+        authApplicationService.authenticate(passwordResetRequest);
+        return ResponseEntity.accepted().build();
     }
 
     @PutMapping("/reset-password/{email}")
