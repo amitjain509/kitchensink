@@ -3,7 +3,7 @@ package com.quickstart.kitchensink.security.jwt;
 import com.quickstart.kitchensink.enums.UserType;
 import com.quickstart.kitchensink.model.Role;
 import com.quickstart.kitchensink.model.User;
-import com.quickstart.kitchensink.security.CustomUserDetailsService;
+import com.quickstart.kitchensink.security.service.CustomUserDetailsService;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;

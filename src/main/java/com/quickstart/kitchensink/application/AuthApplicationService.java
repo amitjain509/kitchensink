@@ -6,13 +6,13 @@ import com.quickstart.kitchensink.dto.response.AuthResponseDTO;
 import com.quickstart.kitchensink.exception.ApplicationErrorCode;
 import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.model.User;
+import com.quickstart.kitchensink.security.enums.AuthenticationType;
+import com.quickstart.kitchensink.security.service.AuthenticationFactory;
 import com.quickstart.kitchensink.security.jwt.JwtService;
 import com.quickstart.kitchensink.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AuthApplicationService {
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationFactory authFactory;
     private final UserService userService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
@@ -33,7 +33,7 @@ public class AuthApplicationService {
     public AuthResponseDTO resetPassword(AuthRequestDTO authRequestDTO) {
         log.info(">>>[AuthApplicationService::authenticate] authenticating user : {}", authRequestDTO.getEmail());
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getEmail(), authRequestDTO.getPassword()));
+        authFactory.authenticate(AuthenticationType.SPRING_SECURITY, authRequestDTO.getEmail(), authRequestDTO.getPassword());
 
         try {
             log.info("[AuthApplicationService::authenticate] authenticated user : {}", authRequestDTO.getEmail());
@@ -55,9 +55,7 @@ public class AuthApplicationService {
     public void resetPassword(PasswordResetRequest passwordResetRequest) {
         log.info(">>>[AuthApplicationService::resetPassword] received password reset request for user : {}",
                 passwordResetRequest.getEmail());
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                passwordResetRequest.getEmail(),
-                passwordResetRequest.getOldPassword()));
+        authFactory.authenticate(AuthenticationType.SPRING_SECURITY, passwordResetRequest.getEmail(), passwordResetRequest.getOldPassword());
 
         userService.updatePassword(passwordResetRequest.getEmail(),
                 passwordEncoder.encode(passwordResetRequest.getNewPassword()));

@@ -6,7 +6,9 @@ import com.quickstart.kitchensink.dto.response.AuthResponseDTO;
 import com.quickstart.kitchensink.exception.ApplicationErrorCode;
 import com.quickstart.kitchensink.exception.KitchenSinkException;
 import com.quickstart.kitchensink.model.User;
+import com.quickstart.kitchensink.security.enums.AuthenticationType;
 import com.quickstart.kitchensink.security.jwt.JwtService;
+import com.quickstart.kitchensink.security.service.AuthenticationFactory;
 import com.quickstart.kitchensink.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,6 +28,8 @@ class AuthApplicationServiceTest {
 
     @Mock
     private AuthenticationManager authenticationManager;
+    @Mock
+    private AuthenticationFactory authFactory;
 
     @Mock
     private UserService userService;
@@ -61,7 +64,7 @@ class AuthApplicationServiceTest {
 
         assertNotNull(response);
         assertEquals(jwtToken, response.getToken());
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(authFactory).authenticate(AuthenticationType.SPRING_SECURITY, testEmail, testPassword);
         verify(userService).getUserByEmail(testEmail);
         verify(jwtService).generateToken(user);
     }
@@ -81,7 +84,7 @@ class AuthApplicationServiceTest {
 
         authApplicationService.resetPassword(resetRequest);
 
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(authFactory).authenticate(AuthenticationType.SPRING_SECURITY, testEmail, testPassword);
         verify(userService).updatePassword(eq(testEmail), anyString());
     }
 

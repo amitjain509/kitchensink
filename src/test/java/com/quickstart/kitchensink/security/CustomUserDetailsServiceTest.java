@@ -1,6 +1,7 @@
 package com.quickstart.kitchensink.security;
 
 import com.quickstart.kitchensink.model.User;
+import com.quickstart.kitchensink.security.service.CustomUserDetailsService;
 import com.quickstart.kitchensink.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

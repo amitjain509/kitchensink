@@ -1,6 +1,6 @@
 package com.quickstart.kitchensink.config;
 
-import com.quickstart.kitchensink.security.CustomUserDetailsService;
+import com.quickstart.kitchensink.security.service.CustomUserDetailsService;
 import com.quickstart.kitchensink.security.jwt.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

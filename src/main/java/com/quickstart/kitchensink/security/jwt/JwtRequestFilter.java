@@ -1,6 +1,6 @@
 package com.quickstart.kitchensink.security.jwt;
 
-import com.quickstart.kitchensink.security.CustomUserDetailsService;
+import com.quickstart.kitchensink.security.service.CustomUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

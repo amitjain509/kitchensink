@@ -1,4 +1,4 @@
-package com.quickstart.kitchensink.security;
+package com.quickstart.kitchensink.security.service;
 
 import com.quickstart.kitchensink.model.User;
 import com.quickstart.kitchensink.service.UserService;
