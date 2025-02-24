@@ -23,7 +23,7 @@ FROM eclipse-temurin:23-jre
 WORKDIR /app
 
 # Copy the built JAR from the builder stage
-COPY --from=builder /app/build/libs/kitchensink-*.jar app.jar
+COPY --from=builder /app/build/libs/kitchensink*.jar app.jar
 
 # Copy SSL certificates
 COPY config/certs/ca.crt /etc/ssl/
