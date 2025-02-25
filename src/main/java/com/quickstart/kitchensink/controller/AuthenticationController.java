@@ -23,7 +23,6 @@ public class AuthenticationController {
     }
 
     @PostMapping("/reset-password")
-    @PreAuthorize("hasAnyAuthority('USER_RESET_PASSWORD')")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
         authApplicationService.resetPassword(passwordResetRequest);
         return ResponseEntity.accepted().build();

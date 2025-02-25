@@ -3,6 +3,7 @@ package com.quickstart.kitchensink.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
@@ -80,6 +81,15 @@ public class GlobalExceptionHandler {
         Map<String, Object> error = new HashMap<>();
         error.put("status", HttpStatus.NOT_FOUND.value());
         error.put("user_error", ex.getMessage());
+        return error;
+    }
+
+    @ExceptionHandler(AccountStatusException.class)
+    @ResponseStatus(HttpStatus.LOCKED)
+    public Map<String, Object> handleAuthenticationException(AccountStatusException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", HttpStatus.LOCKED.value());
+        error.put("message", "Authentication Failed");
         return error;
     }
 }
